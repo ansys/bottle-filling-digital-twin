@@ -1,0 +1,43 @@
+/define/models/steady? y
+
+;#filler_initialisation with steady run, since Fluent_GPU@25R2 cannot initialize in relative velocity components
+/define/boundary-conditions/set fluid live () mixture mrf-motion? y q
+/define/boundary-conditions/set fluid live () mixture mrf-x-origin no -0.72 q
+/define/boundary-conditions/set fluid live () mixture mrf-omega no [ORBITAL_PERIOD_1] q
+/define/boundary-conditions/set fluid live () mixture mrf-ai no 0 q
+/define/boundary-conditions/set fluid live () mixture mrf-aj no 1 q
+/define/boundary-conditions/set fluid live () mixture mrf-ak no 0 q
+
+/solve/iterate 200
+
+;#FLUENT SLOSHING
+/define/models/unsteady-1st-order? yes
+/solve/set/reporting-interval 10
+
+;#filler
+/define/boundary-conditions/set fluid live () mixture mrf-x-origin no -0.72 q
+/define/boundary-conditions/set fluid live () mixture mrf-omega no [ORBITAL_PERIOD_1] q
+/define/boundary-conditions/set fluid live () mixture mrf-ai no 0 q
+/define/boundary-conditions/set fluid live () mixture mrf-aj no 1 q
+/define/boundary-conditions/set fluid live () mixture mrf-ak no 0 q
+;#run up to 0.5[s]
+/solve/set/transient-controls/time-step-size [TIMESTEP_SIZE]
+/solve/dual-time-iterate [FIRST_ITERATION_TIMESTEPS] 50
+
+;#change to starwheel rotation 0.5-2.027[s]
+/define/boundary-conditions/set fluid live () mixture mrf-x-origin no 0.54 q
+/define/boundary-conditions/set fluid live () mixture mrf-omega no -[ORBITAL_PERIOD_2] q
+/define/boundary-conditions/set fluid live () mixture mrf-ai no 0 q
+/define/boundary-conditions/set fluid live () mixture mrf-aj no 1 q
+/define/boundary-conditions/set fluid live () mixture mrf-ak no 0 q
+;#run up to 2.027[s]
+/solve/set/transient-controls/time-step-size [TIMESTEP_SIZE]
+/solve/dual-time-iterate [SECOND_ITERATION_TIMESTEPS] 50
+
+;#change to capper rotation 2.027-2.527[s]
+/define/boundary-conditions/set fluid live () mixture mrf-x-origin no -0.36 q
+/define/boundary-conditions/set fluid live () mixture mrf-omega no [ORBITAL_PERIOD_3] q
+/define/boundary-conditions/set fluid live () mixture mrf-ai no 0 q
+/define/boundary-conditions/set fluid live () mixture mrf-aj no 1 q
+/define/boundary-conditions/set fluid live () mixture mrf-ak no 0 q
+/solve/dual-time-iterate [THIRD_ITERATION_TIMESTEPS] 50

@@ -1,0 +1,64 @@
+@import '../../styles/index.css';
+
+.workflowPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--awc-theme-background-primary);
+}
+
+.errorBanner {
+  background: var(--awc-theme-background-danger-weak);
+  color: var(--awc-theme-foreground-danger);
+  padding: var(--awc-common-size-4x);
+  text-align: center;
+  border-bottom: var(--awc-common-border-basic-width)
+    var(--awc-common-border-basic-style) var(--awc-theme-border-danger-weak);
+}
+
+.errorBanner p {
+  margin: 0;
+  font-family: var(--awc-common-typography-large-body-semibold-font);
+  font-weight: var(--awc-common-typography-large-body-semibold-weight);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.placeholder {
+  text-align: center;
+  padding: var(--awc-common-size-12x);
+  background: var(--awc-theme-background-neutral-background-1);
+  border-radius: var(--awc-common-radius-card);
+  box-shadow: var(--awc-theme-elevation-shadow-2);
+  max-width: var(--awc-common-size-125x);
+  margin: var(--awc-common-size-8x);
+  border: var(--awc-common-border-basic-width)
+    var(--awc-common-border-basic-style) var(--awc-theme-border-primary-weak);
+}
+
+.placeholder h2 {
+  color: var(--awc-theme-foreground-primary);
+  font-family: var(--awc-common-typography-2x-large-heading-bold-font);
+  font-size: var(--awc-common-typography-2x-large-heading-bold-size);
+  font-weight: var(--awc-common-typography-2x-large-heading-bold-weight);
+  line-height: var(--awc-common-typography-2x-large-heading-bold-line-height);
+  margin-bottom: var(--awc-common-size-4x);
+}
+
+.placeholder p {
+  color: var(--awc-theme-foreground-secondary);
+  font-family: var(--awc-common-typography-large-body-regular-font);
+  font-size: var(--awc-common-typography-large-body-regular-size);
+  font-weight: var(--awc-common-typography-large-body-regular-weight);
+  line-height: var(--awc-common-typography-large-body-regular-line-height);
+  margin-bottom: var(--awc-common-size-2x);
+}
+
+.placeholder p:last-child {
+  margin-bottom: 0;
+}

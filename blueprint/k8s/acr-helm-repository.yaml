@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: ansys-acr
+  namespace: omni-streaming
+spec:
+  type: oci
+  url: oci://<YOUR-ACR-REPOSITORY>/helm
+  interval: 10m
+  provider: generic
+  secretRef:
+    name: acr-secret

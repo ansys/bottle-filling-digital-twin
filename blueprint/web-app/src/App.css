@@ -1,0 +1,157 @@
+/*
+ * SPDX-FileCopyrightText: Copyright (c) 2025, ANSYS Inc. Unauthorized use, distribution or duplication is prohibited.
+ */
+
+@import './assets/index.css';
+@import './assets/default.css';
+
+/* For the loading indicator */
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+body {
+  background-color: var(--awc-theme-background-primary);
+  color: var(--awc-theme-foreground-primary);
+  font-family: var(--awc-common-typography-large-body-regular-font);
+}
+
+.header-bar {
+  width: 100%;
+  height: var(--awc-common-size-15x);
+  background-color: var(--awc-theme-background-neutral-background-2);
+  color: var(--awc-theme-foreground-primary);
+  display: flex;
+  align-items: center;
+  padding-left: var(--awc-common-size-5x);
+}
+
+.header-logo {
+  height: var(--awc-common-size-8x);
+  margin-right: var(--awc-common-size-2x-5);
+  filter: var(--awc-theme-logo-filter, none);
+}
+
+.header-partners-logo {
+  height: var(--awc-common-size-8x);
+  position: relative;
+  float: right;
+  margin-right: 0;
+  filter: var(--awc-theme-logo-filter, none);
+}
+
+.header-title {
+  color: var(--awc-theme-foreground-accent);
+  font-family: var(--awc-common-typography-small-heading-semibold-font);
+  font-size: var(--awc-common-typography-small-heading-semibold-size);
+  font-weight: var(--awc-common-typography-small-heading-semibold-weight);
+  line-height: var(--awc-common-typography-small-heading-semibold-line-height);
+  margin-right: var(--awc-common-size-2x-5);
+  margin-left: var(--awc-common-size-2x-5);
+  margin-bottom: var(--awc-common-size-1x);
+}
+
+.header-spacing {
+  margin-left: auto;
+}
+
+.loading-indicator-label {
+  margin-top: var(--awc-common-size-12x-5);
+  padding: var(--awc-common-size-6x) var(--awc-common-size-12x-5);
+  width: 100%;
+  background-color: var(--awc-theme-background-primary);
+  color: var(--awc-theme-foreground-accent);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  font-family: var(--awc-common-typography-large-body-semibold-font);
+  font-weight: var(--awc-common-typography-large-body-semibold-weight);
+}
+
+.nvidia-button {
+  font-family: var(--awc-common-typography-medium-body-regular-font);
+  font-size: var(--awc-common-typography-medium-body-regular-size);
+  margin-top: var(--awc-common-size-1x-5);
+  padding: var(--awc-common-size-1x) var(--awc-common-size-2x);
+  background-color: var(--awc-theme-background-accent-strong);
+  color: var(--awc-theme-foreground-on-accent);
+  border: var(--awc-common-border-medium-width)
+    var(--awc-common-border-medium-style) var(--awc-theme-border-accent-strong);
+  border-radius: var(--awc-common-radius-interactive);
+  cursor: pointer;
+  transition: all var(--awc-common-motion-hovered-duration)
+    var(--awc-common-motion-hovered-timing);
+}
+
+.nvidia-button:hover {
+  background-color: var(--awc-theme-background-primary);
+  color: var(--awc-theme-foreground-primary);
+  border-color: var(--awc-theme-border-accent-strong);
+}
+
+.nvidia-button:disabled,
+button[disabled] {
+  border: var(--awc-common-border-basic-width)
+    var(--awc-common-border-basic-style) var(--awc-theme-border-disabled);
+  background-color: var(--awc-theme-background-disabled);
+  color: var(--awc-theme-foreground-disabled);
+  opacity: var(--awc-common-opacity-disabled);
+}
+
+.nvidia-dropdown {
+  width: 100%;
+  background-color: var(--awc-theme-background-accent-strong);
+  color: var(--awc-theme-foreground-on-accent);
+  font-family: var(--awc-common-typography-large-body-regular-font);
+  font-size: var(--awc-common-typography-large-body-regular-size);
+  border: var(--awc-common-border-basic-width)
+    var(--awc-common-border-basic-style) var(--awc-theme-border-accent-strong);
+  height: var(--awc-common-size-8x-75);
+  border-radius: var(--awc-common-radius-interactive);
+  padding: var(--awc-common-size-1x) var(--awc-common-size-2x);
+}
+
+.nvidia-dropdown:focus {
+  outline: var(--awc-common-focus-width) var(--awc-common-focus-style)
+    var(--awc-common-focus-border-color);
+  outline-offset: var(--awc-common-focus-offset);
+}
+
+.nvidia-dropdown:disabled,
+button[disabled] {
+  border: var(--awc-common-border-basic-width)
+    var(--awc-common-border-basic-style) var(--awc-theme-border-disabled);
+  background-color: var(--awc-theme-background-disabled);
+  color: var(--awc-theme-foreground-disabled);
+  opacity: var(--awc-common-opacity-disabled);
+}
+
+.nvidia-dropdown-option {
+  background-color: var(--awc-theme-background-primary);
+  color: var(--awc-theme-foreground-primary);
+}
+
+.form-check-input:checked {
+  background-color: var(--awc-theme-background-accent-strong);
+  border-color: var(--awc-theme-border-accent-strong);
+}
+
+.form-check-input:focus,
+.form-check-input:focus-visible {
+  outline: var(--awc-common-focus-width) var(--awc-common-focus-style)
+    var(--awc-common-focus-border-color);
+  outline-offset: var(--awc-common-focus-offset);
+}
+
+.form-control:focus {
+  outline: var(--awc-common-focus-width) var(--awc-common-focus-style)
+    var(--awc-common-focus-border-color);
+  outline-offset: var(--awc-common-focus-offset);
+  border-color: var(--awc-theme-border-accent-strong);
+}

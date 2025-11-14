@@ -1,0 +1,126 @@
+/**
+ * SolvedCases Component Styles
+ */
+
+/* Container */
+.solved-cases {
+  position: relative;
+  background: transparent;
+  width: 100%;
+}
+
+/* Header */
+.solved-cases__header {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.solved-cases__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--awc-theme-foreground-primary);
+  margin: 0 0 8px 0;
+}
+
+.solved-cases__description {
+  font-size: 14px;
+  color: var(--awc-theme-foreground-primary);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* Content */
+.solved-cases__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Field containers */
+.solved-cases__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.solved-cases__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--awc-theme-foreground-primary);
+  margin-bottom: 4px;
+}
+
+/* Select dropdown */
+.solved-cases__select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--awc-theme-foreground-primary);
+  background-color: var(--awc-theme-background-neutral-background-1);
+  border: 1px solid var(--awc-theme-border-neutral-default-hovered);
+  border-radius: 4px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.solved-cases__select:hover:not(:disabled) {
+  border-color: var(--awc-theme-background-primary-default);
+}
+
+.solved-cases__select:focus {
+  outline: none;
+  border-color: var(--awc-theme-background-primary-default);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.solved-cases__select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Actions */
+.solved-cases__actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.solved-cases__button {
+  flex: 1;
+  max-width: 200px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--awc-theme-background-primary-default);
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.solved-cases__button--primary {
+  background-color: var(--awc-theme-background-primary-default);
+}
+
+.solved-cases__button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.solved-cases__button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.solved-cases__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

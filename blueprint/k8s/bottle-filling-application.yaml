@@ -1,0 +1,16 @@
+apiVersion: omniverse.nvidia.com/v1
+kind: Application
+metadata:
+  name: bottle-filling-twin
+  namespace: omni-streaming
+  labels:
+    simulation: 'true'
+    ansys: 'true'
+    fluent: 'true'
+    omniverse: 'true'
+    USD: 'true'
+    visualisation: 'true'
+spec:
+  name: Bottle Filling Digital Twin
+  description: Ansys Fluent bottle filling simulation with Omniverse visualization. Simulates fluid dynamics in bottle filling
+    production lines with real-time 3D visualization.

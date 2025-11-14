@@ -1,0 +1,22 @@
+{
+  "$comment": "Omniverse streaming configuration - GeForce Now example",
+  "source": "gfn",
+  "stream": {
+    "$comment": "Required props if source is set to 'stream'. Mocked at localhost:3004",
+    "appServer": "http://example.appServer.com/applications",
+    "streamServer": "http://example.streamServer.com/streaming",
+    "appId": "usd-viewer",
+    "appVersion": "1.0.0",
+    "profile": "default"
+  },
+  "gfn": {
+    "$comment": "GeForce Now streaming configuration",
+    "catalogClientId": "my-gfn-client-id",
+    "clientId": "my-client-id",
+    "cmsId": 12345
+  },
+  "local": {
+    "$comment": "Required props if source is set to 'local'.",
+    "server": "127.0.0.1"
+  }
+}

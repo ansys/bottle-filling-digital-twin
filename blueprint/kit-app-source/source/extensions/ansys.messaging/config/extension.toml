@@ -1,0 +1,13 @@
+[package]
+title = "ANSYS Messaging Extension"
+version = "0.8.0"  # Semantic Versionning is used: https://semver.org/
+icon = "data/icon.png"  # Icon to show in the Extension Manager
+
+
+[dependencies]
+"omni.kit.commands" = {}
+"omni.kit.livestream.messaging" = {}  	# Livestream extension
+"ansys.fluent_ext" = {}
+
+[[python.module]]
+name = "ansys.messaging"

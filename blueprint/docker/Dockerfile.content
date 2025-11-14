@@ -1,0 +1,56 @@
+# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# Dockerfile for Bottle Filling Digital Twin Content Image
+# This image contains all simulation content files (.jou, .cas.h5, materials, etc.)
+# Used as init container to populate PVCs with simulation data
+
+FROM busybox:1.36
+
+# Set metadata
+LABEL org.opencontainers.image.title="Bottle Filling Digital Twin Content"
+LABEL org.opencontainers.image.description="Simulation content files for bottle filling digital twin"
+LABEL org.opencontainers.image.vendor="ANSYS, Inc."
+LABEL org.opencontainers.image.source="https://github.com/ansys/bottle-filling-digital-twin"
+
+# Create content directory
+RUN mkdir -p /content
+
+# Copy all content files from the blueprint/content directory
+# This includes:
+# - FullRun.template.jou, Init.template.jou (Fluent journal files)
+# - 2000mlWaterBottle/ (bottle geometry and mesh)
+# - 500mlWaterBottle/ (bottle geometry and mesh)
+# - materials/ (material definition files .mdl)
+# - templates/ (Omniverse templates and environments)
+COPY content/ /content/
+
+# Set proper permissions (UID:GID 1000:1000 for fluent user)
+RUN chown -R 1000:1000 /content && \
+    chmod -R 755 /content
+
+# Verify content structure
+RUN echo "Content structure:" && \
+    ls -laR /content
+
+# Default command - just sleep (this is an init container)
+CMD ["sh", "-c", "echo 'Content image ready. Use as init container to copy files.'"]

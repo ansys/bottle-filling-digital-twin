@@ -1,0 +1,266 @@
+/* AppOnlyForm Component Styles */
+
+.appOnlyForm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--awc-common-size-8x);
+  background: var(--awc-theme-background-primary);
+}
+
+.container {
+  width: 100%;
+  padding: var(--awc-common-size-12x);
+  text-align: center;
+  background: var(--awc-theme-background-primary);
+}
+
+.welcomeText {
+  margin-bottom: var(--awc-common-size-12x);
+}
+
+.welcomeText h2 {
+  color: var(--awc-theme-foreground-primary);
+  font-family: var(--awc-common-typography-3x-large-heading-bold-font);
+  font-size: var(--awc-common-typography-3x-large-heading-bold-size);
+  font-weight: var(--awc-common-typography-3x-large-heading-bold-weight);
+  line-height: var(--awc-common-typography-3x-large-heading-bold-line-height);
+  margin-bottom: var(--awc-common-size-4x);
+}
+
+.welcomeText p {
+  color: var(--awc-theme-foreground-secondary);
+  font-family: var(--awc-common-typography-large-body-regular-font);
+  font-size: var(--awc-common-typography-large-body-regular-size);
+  font-weight: var(--awc-common-typography-large-body-regular-weight);
+  line-height: var(--awc-common-typography-large-body-regular-line-height);
+  max-width: var(--awc-common-size-150x);
+  margin: 0 auto;
+}
+
+.personaSelection {
+  display: flex;
+  gap: var(--awc-common-size-8x);
+  margin-bottom: var(--awc-common-size-12x);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.personaCard {
+  flex: 1;
+  min-width: var(--awc-common-size-70x);
+  max-width: var(--awc-common-size-87-5x);
+  padding: var(--awc-common-size-8x);
+  /* border: var(--awc-common-border-medium-width)
+    var(--awc-common-border-medium-style) var(--awc-theme-border-primary-weak); */
+  border: var(--awc-theme-decorative-gray-2) 1px solid;
+  transition: border 0.2s;
+  border-radius: var(--awc-common-radius-card);
+  background: var(--awc-theme-background-neutral-background-1);
+  cursor: pointer;
+  /* transition: all var(--awc-core-motion-duration-medium)
+    var(--awc-core-motion-timing-ease-in-out); */
+  position: relative;
+  text-align: left;
+}
+
+.personaCard:hover {
+  border-color: var(--awc-theme-border-accent-strong);
+  box-shadow: var(--awc-theme-elevation-shadow-3);
+  transform: translateY(calc(-1 * var(--awc-common-size-half-x)));
+}
+
+.personaCard.selected {
+  border: var(--awc-theme-decorative-blue-3) 2px solid;
+  /* border-color: var(--awc-theme-border-accent-strong); */
+  background: var(--awc-theme-background-accent-weak);
+  box-shadow: var(--awc-theme-elevation-shadow-3);
+}
+
+.radioContainer {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
+
+.radioInput {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.radioLabel {
+  display: block;
+  cursor: pointer;
+}
+
+.radioCustom {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 50%;
+  position: relative;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.radioInput:checked ~ .radioLabel .radioCustom {
+  border-color: #76b900;
+  background: #76b900;
+}
+
+.radioInput:checked ~ .radioLabel .radioCustom::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cardContent {
+  padding-top: 1rem;
+}
+
+.cardContent h3 {
+  color: var(--awc-theme-foreground-primary);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.cardContent p {
+  color: var(--awc-theme-foreground-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.actionButton {
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.actionButton:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.actionButton:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.nextButton {
+  padding: 0.75rem 2rem;
+  background: #76b900;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+}
+
+.nextButton:hover:not(:disabled) {
+  background: #5a8f00;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(118, 185, 0, 0.3);
+}
+
+.nextButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Accessibility improvements */
+.personaCard:focus-within {
+  outline: var(--awc-theme-decorative-blue-3) 2px solid;
+  /* outline-offset: 2px; */
+}
+
+.radioInput:focus ~ .radioLabel .radioCustom {
+  outline: 2px solid #76b900;
+  outline-offset: 2px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .appOnlyForm {
+    padding: 1rem;
+  }
+
+  .container {
+    padding: 2rem;
+  }
+
+  .welcomeText h2 {
+    font-size: 2rem;
+  }
+
+  .personaSelection {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .personaCard {
+    min-width: unset;
+    max-width: unset;
+  }
+
+  .buttonGroup {
+    flex-direction: column;
+  }
+}
+
+/* Loading state */
+.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.appOnlyForm {
+  animation: fadeIn 0.5s ease-out;
+}

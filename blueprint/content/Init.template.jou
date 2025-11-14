@@ -1,0 +1,3 @@
+/solve/initialize/initialize-flow () q
+/solve/cell-registers edit region_0 type hexahedron max-point 1 [Z_MAX_VALUE_FILLING_HEIGHT] 1 () q
+/solve/patch liquid () region_0 () mp 1

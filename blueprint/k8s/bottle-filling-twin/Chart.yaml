@@ -1,0 +1,28 @@
+apiVersion: v2
+name: bottle-filling-twin
+description: Ansys Fluent simulation with Omniverse Kit visualization for bottle filling digital twin. OKAS-compatible streaming
+  application.
+
+type: application
+
+# Chart version - increment when making changes to chart structure
+version: 1.1.0
+
+# Application version - matches the kit-app version
+appVersion: "1.0.0"
+
+keywords:
+  - omniverse
+  - fluent
+  - simulation
+  - streaming
+  - okas
+  - digital-twin
+
+maintainers:
+  - name: Ansys
+    email: support@ansys.com
+
+sources:
+  - https://github.com/ansys/bottle-filling-digital-twin-okas
+

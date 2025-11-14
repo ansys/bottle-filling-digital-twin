@@ -1,0 +1,188 @@
+[
+  {
+    "children": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "dock_id": 1,
+                "dock_tab_bar_enabled": false,
+                "dock_tab_bar_visible": false,
+                "height": 1020.0,
+                "position_x": 0.0,
+                "position_y": 26.0,
+                "selected_in_dock": true,
+                "title": "Viewport",
+                "visible": true,
+                "width": 959.0
+              }
+            ],
+            "dock_id": 1,
+            "position": "TOP"
+          },
+          {
+            "children": [],
+            "dock_id": 2,
+            "position": "BOTTOM"
+          }
+        ],
+        "dock_id": 3,
+        "position": "LEFT"
+      },
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "dock_id": 5,
+                "dock_tab_bar_enabled": true,
+                "dock_tab_bar_visible": true,
+                "height": 509.0,
+                "position_x": 963.0,
+                "position_y": 26.0,
+                "selected_in_dock": true,
+                "title": "Stage",
+                "visible": true,
+                "width": 957.0
+              }
+            ],
+            "dock_id": 5,
+            "position": "TOP"
+          },
+          {
+            "children": [
+              {
+                "dock_id": 6,
+                "dock_tab_bar_enabled": true,
+                "dock_tab_bar_visible": true,
+                "height": 507.0,
+                "position_x": 963.0,
+                "position_y": 539.0,
+                "selected_in_dock": true,
+                "title": "Property",
+                "visible": true,
+                "width": 957.0
+              }
+            ],
+            "dock_id": 6,
+            "position": "BOTTOM"
+          }
+        ],
+        "dock_id": 4,
+        "position": "RIGHT"
+      }
+    ],
+    "dock_id": 3358485147
+  },
+  {
+    "dock_id": 0,
+    "height": 600.0,
+    "position_x": -581.0,
+    "position_y": 19.0,
+    "selected_in_dock": false,
+    "title": "Render Settings",
+    "visible": false,
+    "width": 600.0
+  },
+  {
+    "dock_id": 0,
+    "height": 63.0,
+    "position_x": 60.0,
+    "position_y": 60.0,
+    "selected_in_dock": false,
+    "title": "Timeline toolbar",
+    "visible": false,
+    "width": 452.0
+  },
+  {
+    "dock_id": 0,
+    "height": 44.0,
+    "position_x": 60.0,
+    "position_y": 60.0,
+    "selected_in_dock": false,
+    "title": "Main ToolBar",
+    "visible": false,
+    "width": 300.0
+  },
+  {
+    "dock_id": 0,
+    "height": 600.0,
+    "position_x": -981.0,
+    "position_y": 19.0,
+    "selected_in_dock": false,
+    "title": "Content",
+    "visible": false,
+    "width": 1000.0
+  },
+  {
+    "dock_id": 0,
+    "height": 800.0,
+    "position_x": -581.0,
+    "position_y": 19.0,
+    "selected_in_dock": false,
+    "title": "Layer",
+    "visible": false,
+    "width": 600.0
+  },
+  {
+    "dock_id": 0,
+    "height": 600.0,
+    "position_x": -981.0,
+    "position_y": 19.0,
+    "selected_in_dock": false,
+    "title": "Console",
+    "visible": false,
+    "width": 1000.0
+  },
+  {
+    "dock_id": 0,
+    "height": 82.0,
+    "position_x": 1277.0,
+    "position_y": 1061.0,
+    "selected_in_dock": false,
+    "title": "7c4954e1-b4ea-11f0-b0d8-1098192b69d2",
+    "visible": false,
+    "width": 400.0
+  },
+  {
+    "dock_id": 0,
+    "height": 72.0,
+    "position_x": 100000.0,
+    "position_y": 100000.0,
+    "selected_in_dock": false,
+    "title": "9ac196ab-b4ea-11f0-addf-1098192b69d2",
+    "visible": false,
+    "width": 400.0
+  },
+  {
+    "dock_id": 0,
+    "height": 600.0,
+    "position_x": 3.4028234663852886e+38,
+    "position_y": 3.4028234663852886e+38,
+    "selected_in_dock": false,
+    "title": "Add Attribute...",
+    "visible": false,
+    "width": 400.0
+  },
+  {
+    "dock_id": 0,
+    "height": 500.0,
+    "position_x": 3.4028234663852886e+38,
+    "position_y": 3.4028234663852886e+38,
+    "selected_in_dock": false,
+    "title": "Timeline Session",
+    "visible": false,
+    "width": 400.0
+  },
+  {
+    "dock_id": 0,
+    "height": 114.0,
+    "position_x": 3.4028234663852886e+38,
+    "position_y": 3.4028234663852886e+38,
+    "selected_in_dock": false,
+    "title": "omni.ui.scene 1547894283792",
+    "visible": false,
+    "width": 210.8000030517578
+  }
+]

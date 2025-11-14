@@ -1,0 +1,355 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bottle-filling-twin.fullname" . }}
+  namespace: {{ include "bottle-filling-twin.namespace" . }}
+  labels:
+    # Mandatory labels: ensure `app` and `sessionId` are always present.
+    app: {{ include "bottle-filling-twin.name" . }}-{{ default .Release.Name .Values.streamingKit.sessionId }}
+    sessionId: {{ .Values.streamingKit.sessionId }}
+    hello: "world"
+    {{- include "bottle-filling-twin.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "bottle-filling-twin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.pod.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "bottle-filling-twin.labels" . | nindent 8 }}
+        {{- with .Values.pod.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "bottle-filling-twin.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "bottle-filling-twin.serviceAccountName" . }}
+      {{- end }}
+      {{- if .Values.contentImage.enabled }}
+      initContainers:
+        # Unified initialization container - copies content and initializes volumes
+        - name: init-volumes
+          image: "{{ .Values.contentImage.repository }}:{{ .Values.contentImage.tag }}"
+          imagePullPolicy: {{ .Values.contentImage.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              echo "=== Volume Initialization Started ==="
+
+              # Initialize content data
+              echo "Copying content from {{ .Values.contentImage.sourcePath }} to {{ .Values.fluent.contentPath }}..."
+              if [ -d "{{ .Values.contentImage.sourcePath }}" ]; then
+                cp -rv {{ .Values.contentImage.sourcePath }}/* {{ .Values.fluent.contentPath }}/
+                echo "Content copied successfully"
+              else
+                echo "Warning: Source path {{ .Values.contentImage.sourcePath }} not found in image"
+                exit 1
+              fi
+              echo "=== Volume Initialization Complete ==="
+              echo "=== Creating cache directory structure ==="
+              {{- if .Values.storage.shaderCache.enabled }}
+              mkdir -p {{ .Values.kitApp.shaderCachePath }}/ov
+              chmod 777 {{ .Values.kitApp.shaderCachePath }}/ov
+              echo "Created {{ .Values.kitApp.shaderCachePath }}/ov"
+              {{- end }}
+              {{- if .Values.storage.extensionCache.enabled }}
+              mkdir -p {{ .Values.kitApp.extensionCachePath }}/ov
+              chmod 777 {{ .Values.kitApp.extensionCachePath }}/ov
+              echo "Created {{ .Values.kitApp.extensionCachePath }}/ov"
+              {{- end }}
+              echo "=== Cache directories ready ==="
+          volumeMounts:
+            {{- if .Values.storage.contentData.enabled }}
+            - name: content-data
+              mountPath: {{ .Values.fluent.contentPath }}
+            {{- end }}
+      {{- end }}
+      containers:
+        # Fluent container
+        - name: fluent
+          image: "{{ .Values.fluent.image.repository }}:{{ .Values.fluent.image.tag }}"
+          imagePullPolicy: {{ .Values.fluent.image.pullPolicy }}
+          args:
+            - "3d"
+            - "-gpu"
+            - "-t1"
+            - "-g"
+            - "-sifile={{ .Values.fluent.workdirPath }}/serverinfo.txt"
+          workingDir: {{ .Values.fluent.workdirPath }}
+          env:
+            - name: FLUENT_PORT
+              value: {{ .Values.fluent.port | quote }}
+            - name: ANSYSLMD_LICENSE_FILE
+              valueFrom:
+                secretKeyRef:
+                  name: ansys-license-secret
+                  key: ANSYSLMD_LICENSE_FILE
+            - name: REMOTING_PORTS
+              value: "{{ .Values.fluent.port }}/portspan={{ .Values.fluent.portSpan }}"
+            - name: FLUENT_ALLOW_REMOTE_GRPC_CONNECTION
+              value: "1"
+            - name: FLUENT_SERVER_INFO_PERMISSION_SYSTEM
+              value: "1"
+            {{- include "bottle-filling-twin.gpuEnv" . | nindent 12 }}
+          ports:
+            - name: fluent
+              containerPort: {{ .Values.fluent.port }}
+              protocol: TCP
+          volumeMounts:
+            {{- if .Values.storage.fluentWorkdir.enabled }}
+            - name: fluent-workdir
+              mountPath: {{ .Values.fluent.workdirPath }}
+            {{- end }}
+            {{- if .Values.storage.contentData.enabled }}
+            - name: content-data
+              mountPath: {{ .Values.fluent.contentPath }}
+              {{- if .Values.storage.contentData.readOnly }}
+              readOnly: true
+              {{- end }}
+            {{- end }}
+            {{- if .Values.storage.contentStored.enabled }}
+            - name: content-stored
+              mountPath: {{ .Values.fluent.contentPath }}/stored
+              {{- if .Values.storage.contentStored.readOnly }}
+              readOnly: true
+              {{- end }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.fluent.resources | nindent 12 }}
+
+        # Kit-app container
+        - name: kit-app
+          image: "{{ .Values.kitApp.image.repository }}:{{ .Values.kitApp.image.tag }}"
+          imagePullPolicy: {{ .Values.kitApp.image.pullPolicy }}
+          ports:
+            - name: signaling
+              containerPort: {{ .Values.kitApp.ports.signaling }}
+              protocol: TCP
+            - name: media
+              containerPort: {{ .Values.kitApp.ports.media }}
+              protocol: UDP
+            - name: http
+              containerPort: {{ .Values.kitApp.ports.http }}
+              protocol: TCP
+          env:
+            - name: TEMP
+              value: {{ .Values.kitApp.workdirPath | quote }}
+            - name: FLUENT_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: FLUENT_PORT
+              value: {{ .Values.fluent.port | quote }}
+            - name: VISCOSITY
+              value: {{ .Values.fluent.simulation.viscosity | quote }}
+            - name: BOTTLES_PER_HOUR
+              value: {{ .Values.fluent.simulation.bottlesPerHour | quote }}
+            - name: FILLING_HEIGHT
+              value: {{ .Values.fluent.simulation.fillingHeight | quote }}
+            - name: TIMESTEP_SIZE
+              value: {{ .Values.fluent.simulation.timestepSize | quote }}
+            - name: BOTTLE_UNITS_1
+              value: {{ .Values.fluent.simulation.bottleUnits1 | quote }}
+            - name: BOTTLE_UNITS_2
+              value: {{ .Values.fluent.simulation.bottleUnits2 | quote }}
+            - name: BOTTLE_UNITS_3
+              value: {{ .Values.fluent.simulation.bottleUnits3 | quote }}
+            - name: FIRST_ITERATION_TIMESTEPS
+              value: {{ .Values.fluent.simulation.firstIterationTimesteps | quote }}
+            - name: CONTENT_PATH
+              value: "{{ .Values.kitApp.contentPath }}/"
+            - name: OM_KIT_VERBOSE
+              value: {{ .Values.kitApp.env.omKitVerbose | quote }}
+            - name: NVDA_KIT_ARGS
+              value: {{ .Values.kitApp.env.nvdaKitArgs | quote }}
+            - name: NVDA_KIT_NUCLEUS
+              value: {{ .Values.kitApp.env.nvdaKitNucleus | quote }}
+            {{- include "bottle-filling-twin.gpuEnv" . | nindent 12 }}
+          volumeMounts:
+            {{- if .Values.storage.fluentWorkdir.enabled }}
+            - name: fluent-workdir
+              mountPath: {{ .Values.kitApp.workdirPath }}
+              readOnly: true
+            {{- end }}
+            {{- if .Values.storage.contentData.enabled }}
+            - name: content-data
+              mountPath: {{ .Values.kitApp.contentPath }}
+              {{- if .Values.storage.contentData.readOnly }}
+              readOnly: true
+              {{- end }}
+            {{- end }}
+            {{- if .Values.storage.contentStored.enabled }}
+            - name: content-stored
+              mountPath: {{ .Values.kitApp.contentPath }}/stored
+              {{- if .Values.storage.contentStored.readOnly }}
+              readOnly: true
+              {{- end }}
+            {{- end }}
+            {{- if .Values.storage.shaderCache.enabled }}
+            - name: shader-cache
+              mountPath: {{ .Values.kitApp.shaderCachePath }}
+              {{- if .Values.storage.shaderCache.readOnly }}
+              readOnly: true
+              {{- end }}
+            {{- end }}
+            {{- if .Values.storage.extensionCache.enabled }}
+            - name: extension-cache
+              mountPath: {{ .Values.kitApp.extensionCachePath }}
+              {{- if .Values.storage.extensionCache.readOnly }}
+              readOnly: true
+              {{- end }}
+            {{- end }}
+          resources:
+            requests:
+              memory: {{ .Values.kitApp.resources.requests.memory | quote }}
+              cpu: {{ .Values.kitApp.resources.requests.cpu | quote }}
+              nvidia.com/gpu: "1"
+            limits:
+              memory: {{ .Values.kitApp.resources.limits.memory | quote }}
+              cpu: {{ .Values.kitApp.resources.limits.cpu | quote }}
+              nvidia.com/gpu: "1"
+          securityContext:
+            {{- toYaml .Values.kitApp.securityContext | nindent 12 }}
+
+        {{- if .Values.envoy.enabled }}
+        # Envoy sidecar for connection management and health checks
+        - name: envoy-sidecar
+          image: "{{ .Values.envoy.image.repository }}:{{ .Values.envoy.image.tag }}"
+          imagePullPolicy: {{ .Values.envoy.image.pullPolicy }}
+          args: ["-c", "/etc/envoy/envoy.yaml"]
+          ports:
+            - name: signaling-proxy
+              containerPort: {{ .Values.envoy.proxyPort }}
+              protocol: TCP
+            - name: health
+              containerPort: {{ .Values.envoy.healthPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy
+          {{- if .Values.envoy.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.envoy.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.envoy.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.envoy.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.envoy.resources | nindent 12 }}
+        {{- end }}
+
+      volumes:
+        {{- if .Values.envoy.enabled }}
+        - name: envoy-config
+          configMap:
+            name: {{ include "bottle-filling-twin.envoyConfigMapName" . }}
+        {{- end }}
+        {{- if .Values.storage.fluentWorkdir.enabled }}
+        - name: fluent-workdir
+          {{- if eq .Values.storage.fluentWorkdir.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.fluentWorkdir" . }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.fluentWorkdir.sizeLimit }}
+            sizeLimit: {{ .Values.storage.fluentWorkdir.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.storage.contentData.enabled }}
+        - name: content-data
+          {{- if eq .Values.storage.contentData.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.contentData" . }}
+            {{- if .Values.storage.contentData.readOnly }}
+            readOnly: true
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.contentData.sizeLimit }}
+            sizeLimit: {{ .Values.storage.contentData.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.storage.contentStored.enabled }}
+        - name: content-stored
+          {{- if eq .Values.storage.contentStored.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.contentStored" . }}
+            {{- if .Values.storage.contentStored.readOnly }}
+            readOnly: true
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.contentStored.sizeLimit }}
+            sizeLimit: {{ .Values.storage.contentStored.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.storage.shaderCache.enabled }}
+        - name: shader-cache
+          {{- if eq .Values.storage.shaderCache.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.shaderCache" . }}
+            {{- if .Values.storage.shaderCache.readOnly }}
+            readOnly: true
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.shaderCache.sizeLimit }}
+            sizeLimit: {{ .Values.storage.shaderCache.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.storage.extensionCache.enabled }}
+        - name: extension-cache
+          {{- if eq .Values.storage.extensionCache.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.extensionCache" . }}
+            {{- if .Values.storage.extensionCache.readOnly }}
+            readOnly: true
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.extensionCache.sizeLimit }}
+            sizeLimit: {{ .Values.storage.extensionCache.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
+      {{- with .Values.pod.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.podAntiAffinity.enabled }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "bottle-filling-twin.name" . }}
+              topologyKey: "kubernetes.io/hostname"
+      {{- end }}
+
+      {{- with .Values.pod.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.pod.priorityClassName }}
+      priorityClassName: {{ .Values.pod.priorityClassName }}
+      {{- end }}

@@ -1,0 +1,51 @@
+# .dockerignore for content image build
+# Excludes unnecessary files from Docker build context
+
+# Documentation
+*.md
+README*
+LICENSE*
+CONTRIBUTING*
+CODE_OF_CONDUCT*
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Docker files (we only need content/)
+docker/
+!docker/Dockerfile.content
+
+# Kubernetes manifests
+k8s/
+manifests/
+
+# Scripts
+scripts/
+
+# Build artifacts
+*.log
+*.tmp
+*.bak
+*~
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Kit app source (not needed for content image)
+kit-app-source/
+
+# Web app (not needed for content image)
+web-app/
+
+# Documentation
+doc/
+
+# Python cache
+__pycache__/

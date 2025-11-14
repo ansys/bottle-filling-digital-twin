@@ -1,0 +1,674 @@
+{
+  "uuid": "376717fb-430c-4f7d-821b-ef92be531c69",
+  "lastMigration": 33,
+  "name": "Application Streaming API",
+  "endpointPrefix": "streaming",
+  "latency": 0,
+  "port": 3004,
+  "hostname": "localhost",
+  "folders": [],
+  "routes": [
+    {
+      "uuid": "eeab303e-6bad-4bef-a6f5-bbd12de7d71d",
+      "type": "http",
+      "documentation": "Returns metrics related to the use of the service.",
+      "method": "get",
+      "endpoint": "metrics",
+      "responses": [
+        {
+          "uuid": "4847e0ad-cf94-4828-9920-f4d9f2b9a097",
+          "body": "\"\"",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Successful Response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "e237c1d6-0b1d-4b2b-9a6a-d8498ac7b589",
+      "type": "http",
+      "documentation": "Return application streaming sessions",
+      "method": "get",
+      "endpoint": "stream",
+      "responses": [
+        {
+          "uuid": "0b9c2caa-3865-43a3-81c0-b0e4c8214a31",
+          "body": "{\n  \"count\": 2,\n  \"items\": [\n    {\n      \"id\": \"82a67a28-66e2-4f01-bdf8-2a20971f2457\",\n      \"routes\": {\n        \"rproxy-a\": [\n          {\n            \"description\": \"signaling\",\n            \"destination_port\": 49100,\n            \"protocol\": \"TCP\",\n            \"source_port\": 12574\n          },\n          {\n            \"description\": \"media\",\n            \"destination_port\": 1024,\n            \"protocol\": \"UDP\",\n            \"source_port\": 10521\n          }\n        ],\n        \"rproxy-b\": [\n          {\n            \"description\": \"signaling\",\n            \"destination_port\": 49100,\n            \"protocol\": \"TCP\",\n            \"source_port\": 12534\n          },\n          {\n            \"description\": \"media\",\n            \"destination_port\": 1024,\n            \"protocol\": \"UDP\",\n            \"source_port\": 10522\n          }\n        ]\n      }\n    }\n  ],\n  \"limit\": 50,\n  \"offset\": 0\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Successful Response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Origin, Accept,Authorization,Content-Length, X-Requested-With"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "3cdd1b1a-2bd2-4f9f-a317-63d97cdaaed7",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "Forbidden",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "6373e617-a74b-42f4-a7bf-1e46b1bc70cc",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Not Found",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "25767378-107b-4ba5-845f-0b37eaaf0093",
+      "type": "http",
+      "documentation": "Create a streaming session",
+      "method": "post",
+      "endpoint": "stream",
+      "responses": [
+        {
+          "uuid": "29168393-dc66-4bf1-adba-21ef0d3f5d17",
+          "body": "{\n  \"id\": \"82a67a28-66e2-4f01-bdf8-2a20971f2457\",\n  \"4.156.231.119\": {\n    \"routes\": [\n      {\n        \"description\": \"signaling\",\n        \"destination_port\": 49100,\n        \"protocol\": \"TCP\",\n        \"source_port\": 31000\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 1024,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31001\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 1024,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31002\n      }\n    ]\n  },\n  \"status\": {\n    \"condition\": \"ready\",\n    \"message\": \"Session is active\",\n    \"status\": true\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Session is ready.",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Origin, Accept,Authorization,Content-Length, X-Requested-With"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "7cbfe04e-1763-49be-8008-122695170a6a",
+          "body": "{\n  \"id\": \"82a67a28-66e2-4f01-bdf8-2a20971f2457\",\n  \"routes\": {\n    \"25.124.78.14\": [\n      {\n        \"description\": \"signaling\",\n        \"destination_port\": 32452,\n        \"protocol\": \"TCP\",\n        \"source_port\": 31000\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 32433,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31001\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 32433,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31002\n      }\n    ]\n  },\n  \"status\": {\n    \"condition\": \"ready\",\n    \"message\": \"Session is active\",\n    \"status\": true\n  }\n}",
+          "latency": 0,
+          "statusCode": 202,
+          "label": "Session is being prepared.",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "a9ba8cc5-d11a-4132-bf09-d8aec6b92f9f",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "Forbidden",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "8c096c14-2a74-49bd-9dd0-2bf261a7d39d",
+          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"\"\n      ],\n      \"msg\": \"\",\n      \"type\": \"\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 422,
+          "label": "Validation Error",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "5d3f99e5-5f49-42be-8b22-6270b4549791",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 429,
+          "label": "Too Many Requests",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "5bdf04c4-86a4-4775-af1e-4a6dc7e8d71e",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal Server Error",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "8ca1d47c-4180-42e0-a4b7-5c811ef6c3da",
+      "type": "http",
+      "documentation": "Terminate a streaming session",
+      "method": "delete",
+      "endpoint": "stream",
+      "responses": [
+        {
+          "uuid": "28619b45-c692-453b-b7cd-009a4b1803b6",
+          "body": "",
+          "latency": 0,
+          "statusCode": 204,
+          "label": "Successful Response",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Origin, Accept,Authorization,Content-Length, X-Requested-With"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "9f2505ac-b255-4e09-b5a9-6572f865d722",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "Forbidden",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "d65fc6e9-9e35-4ba4-989b-758123f02573",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Not Found",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "d8345e57-0677-4150-8acb-dc112bc4afa5",
+          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"\"\n      ],\n      \"msg\": \"\",\n      \"type\": \"\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 422,
+          "label": "Validation Error",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "593ac145-bcd5-44b8-87ac-ed59cfc1f765",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal Server Error",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    },
+    {
+      "uuid": "80f260c3-ec0a-4f68-ba67-16e18939a3da",
+      "type": "http",
+      "documentation": "Return information about a streaming session",
+      "method": "get",
+      "endpoint": "stream/:id",
+      "responses": [
+        {
+          "uuid": "d628ae6a-897c-4ed7-8a05-e4ae44eff9db",
+          "body": "{\n  \"id\": \"82a67a28-66e2-4f01-bdf8-2a20971f2457\",\n  \"routes\": {\n    \"25.124.78.14\": [\n      {\n        \"description\": \"signaling\",\n        \"destination_port\": 32452,\n        \"protocol\": \"TCP\",\n        \"source_port\": 31000\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 32433,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31001\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 32433,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31002\n      }\n    ]\n  },\n  \"status\": {\n    \"condition\": \"ready\",\n    \"message\": \"Session is active\",\n    \"status\": true\n  }\n}",
+          "latency": 0,
+          "statusCode": 200,
+          "label": "Session is ready.",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "key": "Access-Control-Allow-Headers",
+              "value": "Content-Type, Origin, Accept,Authorization,Content-Length, X-Requested-With"
+            },
+            {
+              "key": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "key": "Access-Control-Allow-Methods",
+              "value": "GET,POST,PUT,PATCH,DELETE,HEAD,OPTIONS"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": true,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "fcbe68ba-6bf5-4b3d-9488-de4a55fc5f46",
+          "body": "{\n  \"id\": \"82a67a28-66e2-4f01-bdf8-2a20971f2457\",\n  \"routes\": {\n    \"25.124.78.14\": [\n      {\n        \"description\": \"signaling\",\n        \"destination_port\": 32452,\n        \"protocol\": \"TCP\",\n        \"source_port\": 31000\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 32433,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31001\n      },\n      {\n        \"description\": \"media\",\n        \"destination_port\": 32433,\n        \"protocol\": \"UDP\",\n        \"source_port\": 31002\n      }\n    ]\n  },\n  \"status\": {\n    \"condition\": \"ready\",\n    \"message\": \"Session is active\",\n    \"status\": true\n  }\n}",
+          "latency": 0,
+          "statusCode": 202,
+          "label": "Session is being prepared.",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "4161a8f7-1dcb-4152-9162-23b03a530ca3",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 403,
+          "label": "Forbidden",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "7586b327-05a3-4276-aebe-4f62fdd1b7fb",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 404,
+          "label": "Not Found",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "edef49da-236c-4759-8e51-c8ace26bd30c",
+          "body": "{\n  \"detail\": [\n    {\n      \"loc\": [\n        \"\"\n      ],\n      \"msg\": \"\",\n      \"type\": \"\"\n    }\n  ]\n}",
+          "latency": 0,
+          "statusCode": 422,
+          "label": "Validation Error",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        },
+        {
+          "uuid": "fa580689-649e-4c40-be2c-2b6c83b8e461",
+          "body": "{\n  \"detail\": \"\"\n}",
+          "latency": 0,
+          "statusCode": 500,
+          "label": "Internal Server Error",
+          "headers": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "bodyType": "INLINE",
+          "filePath": "",
+          "databucketID": "",
+          "sendFileAsBody": false,
+          "rules": [],
+          "rulesOperator": "OR",
+          "disableTemplating": false,
+          "fallbackTo404": false,
+          "default": false,
+          "crudKey": "id",
+          "callbacks": []
+        }
+      ],
+      "responseMode": null,
+      "streamingMode": null,
+      "streamingInterval": 0
+    }
+  ],
+  "rootChildren": [
+    {
+      "type": "route",
+      "uuid": "eeab303e-6bad-4bef-a6f5-bbd12de7d71d"
+    },
+    {
+      "type": "route",
+      "uuid": "e237c1d6-0b1d-4b2b-9a6a-d8498ac7b589"
+    },
+    {
+      "type": "route",
+      "uuid": "25767378-107b-4ba5-845f-0b37eaaf0093"
+    },
+    {
+      "type": "route",
+      "uuid": "8ca1d47c-4180-42e0-a4b7-5c811ef6c3da"
+    },
+    {
+      "type": "route",
+      "uuid": "80f260c3-ec0a-4f68-ba67-16e18939a3da"
+    }
+  ],
+  "proxyMode": false,
+  "proxyHost": "",
+  "proxyRemovePrefix": false,
+  "tlsOptions": {
+    "enabled": false,
+    "type": "CERT",
+    "pfxPath": "",
+    "certPath": "",
+    "keyPath": "",
+    "caPath": "",
+    "passphrase": ""
+  },
+  "cors": true,
+  "headers": [],
+  "proxyReqHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "proxyResHeaders": [
+    {
+      "key": "",
+      "value": ""
+    }
+  ],
+  "data": [],
+  "callbacks": []
+}

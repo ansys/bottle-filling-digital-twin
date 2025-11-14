@@ -1,0 +1,4 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<rect x="12" y="3.5" width="12" height="12" rx="2" transform="rotate(45 12 3.5)" accent-color/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M15.6179 10.1009L10.559 15.2519L8 12.6464L8.95126 11.7121L10.559 13.349L14.6667 9.16663L15.6179 10.1009Z" bicolor-surface/>
+</svg>

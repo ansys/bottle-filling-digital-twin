@@ -1,0 +1,35 @@
+[package]
+title = "Omni CAE Editor Streaming with Fluent Extensions"
+version = "1.0.0"
+
+[dependencies]
+"omni.cae_streaming" = {}  # Application kit file
+"ansys.fluent_ext" = { } # Ansys Fluent specific extensions
+"ansys.messaging" = {} # Ansys messaging framework
+
+[settings.persistent.app]
+viewport.noPadding = true  # Remove default frame around viewport
+
+[settings.persistent]
+metricsAssembler.showUnitsOverlay = false
+
+[settings.app.viewport.defaults]
+fillViewport = true
+guide.grid.visible = false
+guide.axis.visible = false
+hud.visible = false
+scene.cameras.visible = false
+scene.lights.visible = false
+
+[settings.exts]
+"omni.kit.window.viewport".showContextMenu = false  # Disable context menu, viewer not editor.
+
+[settings.app.exts]
+folders.'++' = [  # Search paths for extensions.
+    "${app}/../exts",
+    "${app}/../apps",
+    "${app}/../extscache"
+]
+
+[template]
+type = "ApplicationLayerTemplate" # Repo Template Metadata

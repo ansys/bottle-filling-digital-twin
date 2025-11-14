@@ -1,0 +1,90 @@
+# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+ARG NODE_VERSION=20.15.1
+ARG PNPM_VERSION=8.15.14
+
+
+FROM node:${NODE_VERSION}-alpine AS build
+
+# Set working directory
+WORKDIR /usr/src/app
+
+# Install pnpm globally
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g pnpm@${PNPM_VERSION}
+
+# Copy package files
+COPY package.json ./
+
+# Copy lock file if it exists
+COPY pnpm-lock.yaml ./
+
+# Copy .npmrc
+COPY .npmrc ./
+
+# Install dependencies with appropriate flags
+# RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+#     if [ -f pnpm-lock.yaml ]; then \
+#         echo "Installing with frozen lockfile..." && \
+#         pnpm install --frozen-lockfile; \
+#     else \
+#         echo "No lockfile found, installing dependencies..." && \
+#         pnpm install; \
+#     fi
+RUN pnpm install
+
+# Copy all files
+COPY  . .
+
+# Build Web-App from script
+RUN pnpm build
+
+
+FROM nginx:1.28.0-alpine
+
+ARG CREATED_AT
+ARG REVISION
+ARG VERSION
+
+
+# CONTAINER LABELS
+LABEL org.opencontainers.image.authors="ANSYS, Inc."
+LABEL org.opencontainers.image.vendor="ANSYS Inc."
+LABEL org.opencontainers.image.title="Bottle Filling Digital Twin"
+LABEL org.opencontainers.image.description="Bottle filling processes using Ansys Fluent and Nvidia Omniverse"
+LABEL org.opencontainers.image.created=${CREATED_AT}
+LABEL org.opencontainers.image.revision=${REVISION}
+LABEL org.opencontainers.image.version=${VERSION}
+
+LABEL org.opencontainers.image.software="bottle-filling"
+LABEL org.opencontainers.image.software.service="web"
+
+# Expose the port that the application listens on.
+WORKDIR /etc/nginx/html
+EXPOSE 80
+RUN rm -rf ./*
+
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /usr/src/app/dist/ .
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

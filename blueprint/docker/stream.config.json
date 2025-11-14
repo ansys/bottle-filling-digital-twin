@@ -1,0 +1,24 @@
+{
+  "$comment": "Omniverse streaming configuration - source can be 'gfn', 'local' or 'stream'",
+  "source": "local",
+  "stream": {
+    "$comment": "Required props if source is set to 'stream'. Mocked at localhost:3004",
+    "appServer": "https://bfdt-app.example.com",
+    "streamServer": "http://localhost:3004",
+    "appId": "krones-bfdt",
+    "appVersion": "1.0.0",
+    "profile": "default"
+  },
+  "gfn": {
+    "$comment": "Required props if source is set to 'gfn'.",
+    "catalogClientId": "example-krones",
+    "clientId": "example-client-id",
+    "cmsId": 0
+  },
+  "local": {
+    "$comment": "Required props if source is set to 'local'.",
+    "server": "172.191.168.232",
+    "signalingPort": 49100,
+    "mediaPort": 1024
+  }
+}

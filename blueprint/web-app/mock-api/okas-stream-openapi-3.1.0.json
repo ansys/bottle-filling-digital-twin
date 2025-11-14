@@ -1,0 +1,719 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Application Streaming API",
+    "description": "\n## Overview\nThe Application Streaming API is mainly used to query which application streams are active for a given deployment or to initiate\nand manage a new application stream for developers desiring to embed Omniverse on DGX Cloud application streams\ninto their own custom applications or environments.\n\n## Stream Management\nAll application streams for a deployment are initiated by the Application Streaming API and can be introspected via the same API,\nregardless of whether they are initiated via a custom application or environment.\n\n## Developer Use Case\nThe primary reason to use the Application Streaming API is if you, as a developer, want to embed a streamed Omniverse application into your own application.\nAn example use case would be leveraging the graphics and computing power of a remote node\nto stream a high-quality interactive render of a USD scene into your own application.\n",
+    "version": "1.3.0"
+  },
+  "servers": [
+    {
+      "url": "/streaming"
+    }
+  ],
+  "paths": {
+    "/metrics": {
+      "get": {
+        "tags": ["metrics"],
+        "summary": "Returns metrics related to the use of the service.",
+        "description": "Retrieve runtime metrics.\n\nReturned metrics will be in the Prometheus format.",
+        "operationId": "metrics_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stream": {
+      "get": {
+        "tags": ["Streaming APIs"],
+        "summary": "Return application streaming sessions",
+        "description": "Return metadata information about application streaming sessions.",
+        "operationId": "list_streams_stream_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamPaginatedResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Streaming APIs"],
+        "summary": "Create a streaming session",
+        "description": "Create a streaming session using the provided metadata information.",
+        "operationId": "start_stream_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Session is ready.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamCreateResponse-Input"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Session is being prepared.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamCreateResponse-Input"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Streaming APIs"],
+        "summary": "Terminate a streaming session",
+        "description": "Terminate a streaming session based on its unique identifier.",
+        "operationId": "delete_stream_stream_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StreamDeleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stream/{id}": {
+      "get": {
+        "tags": ["Streaming APIs"],
+        "summary": "Return information about a streaming session",
+        "description": "Return metadata information about a stream session using its unique session identifier.",
+        "operationId": "get_stream_stream__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$",
+              "title": "Session ID",
+              "description": "Unique identifier of the session about which to return metadata information."
+            },
+            "description": "Unique identifier of the session about which to return metadata information."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session is ready.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamCreateResponse-Input"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Session is being prepared.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StreamCreateResponse-Input"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorMessage"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorMessage": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Error message",
+            "description": "Detail about the error that occurred."
+          }
+        },
+        "type": "object",
+        "required": ["detail"],
+        "title": "ErrorMessage",
+        "description": "Base error message."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "SessionCondition": {
+        "type": "string",
+        "enum": ["ready", "failed"],
+        "title": "SessionCondition",
+        "description": "Possible session conditions."
+      },
+      "SessionStatus": {
+        "properties": {
+          "condition": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SessionCondition"
+              }
+            ],
+            "title": "Session condition",
+            "description": "State of the session"
+          },
+          "status": {
+            "type": "boolean",
+            "title": "Session status",
+            "description": "Status of the given session"
+          },
+          "message": {
+            "type": "string",
+            "title": "Log messages",
+            "description": "Relevant logs to the given status"
+          }
+        },
+        "type": "object",
+        "required": ["condition", "status", "message"],
+        "title": "SessionStatus",
+        "description": "Session status."
+      },
+      "StreamApplicationArguments": {
+        "properties": {
+          "usd_stage_uri": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "USD stage",
+            "description": "URI of the USD stage to load or the Nucleus server to mount. Required format: omniverse://<nucleus-server-fqdn/<optional USD file>",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "title": "StreamApplicationArguments",
+        "description": "Arguments that can be passed to an instance of an application.",
+        "example": {
+          "usd_stage_uri": "omniverse://store.cluster.az.omniverse.nvidia.com/project-a/stage.usd"
+        }
+      },
+      "StreamCreateRequest": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][\\w-]*$",
+            "title": "application id",
+            "description": "Application ID as registered with the application service"
+          },
+          "profile": {
+            "type": "string",
+            "pattern": "^[a-zA-Z][\\w-]*$",
+            "title": "Application runtime profile",
+            "description": "Load the application with a preconfigured runtime profile (ie: pre-configured memory allocation, container etc.)"
+          },
+          "version": {
+            "type": "string",
+            "title": "Application version",
+            "description": "Version of the application to spawn as available via the application service",
+            "default": "default"
+          },
+          "arguments": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StreamApplicationArguments"
+              }
+            ],
+            "title": "Application arguments",
+            "description": "Set of arguments to pass to an application on startup",
+            "default": {
+              "usd_stage_uri": ""
+            }
+          }
+        },
+        "type": "object",
+        "required": ["id", "profile"],
+        "title": "StreamCreateRequest",
+        "description": "Model of a request to create a new streaming instance.",
+        "example": {
+          "arguments": {
+            "usd_stage_uri": "omniverse://store.cluster.az.omniverse.nvidia.com/project-a/stage.usd"
+          },
+          "id": "usd-viewer",
+          "profile": "nlb",
+          "version": "0.2.0"
+        }
+      },
+      "StreamCreateResponse-Input": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session ID",
+            "description": "Unique session ID"
+          },
+          "routes": {
+            "type": "object",
+            "title": "Session routes",
+            "description": "Hosts and ports to connect to the stream"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SessionStatus"
+              }
+            ],
+            "title": "Session status",
+            "description": "Session status"
+          }
+        },
+        "type": "object",
+        "required": ["id", "routes", "status"],
+        "title": "StreamCreateResponse",
+        "description": "Returned data after the successful creation of a Stream.",
+        "example": {
+          "id": "82a67a28-66e2-4f01-bdf8-2a20971f2457",
+          "routes": {
+            "25.124.78.14": [
+              {
+                "description": "signaling",
+                "destination_port": 32452,
+                "protocol": "TCP",
+                "source_port": 31000
+              },
+              {
+                "description": "media",
+                "destination_port": 32433,
+                "protocol": "UDP",
+                "source_port": 31001
+              },
+              {
+                "description": "media",
+                "destination_port": 32433,
+                "protocol": "UDP",
+                "source_port": 31002
+              }
+            ]
+          },
+          "status": {
+            "condition": "ready",
+            "message": "Session is active",
+            "status": true
+          }
+        }
+      },
+      "StreamCreateResponse-Output": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session ID",
+            "description": "Unique session ID"
+          },
+          "routes": {
+            "type": "object",
+            "title": "Session routes",
+            "description": "Hosts and ports to connect to the stream"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SessionStatus"
+              }
+            ],
+            "title": "Session status",
+            "description": "Session status"
+          }
+        },
+        "type": "object",
+        "required": ["id", "routes", "status"],
+        "title": "StreamCreateResponse",
+        "description": "Returned data after the successful creation of a Stream.",
+        "example": {
+          "id": "82a67a28-66e2-4f01-bdf8-2a20971f2457",
+          "routes": {
+            "25.124.78.14": [
+              {
+                "description": "signaling",
+                "destination_port": 32452,
+                "protocol": "TCP",
+                "source_port": 31000
+              },
+              {
+                "description": "media",
+                "destination_port": 32433,
+                "protocol": "UDP",
+                "source_port": 31001
+              },
+              {
+                "description": "media",
+                "destination_port": 32433,
+                "protocol": "UDP",
+                "source_port": 31002
+              }
+            ]
+          },
+          "status": {
+            "condition": "ready",
+            "message": "Session is active",
+            "status": true
+          }
+        }
+      },
+      "StreamDeleteRequest": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session ID",
+            "description": "Unique session ID"
+          }
+        },
+        "type": "object",
+        "required": ["id"],
+        "title": "StreamDeleteRequest",
+        "description": "Model of a request containing the data required to delete a session.",
+        "example": {
+          "id": "82a67a28-66e2-4f01-bdf8-2a20971f2457"
+        }
+      },
+      "StreamPaginatedResponse": {
+        "properties": {
+          "offset": {
+            "type": "integer",
+            "title": "Offset",
+            "description": "Offset used as part of query"
+          },
+          "limit": {
+            "type": "integer",
+            "title": "Limit",
+            "description": "Limit used as part of query"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Amount of results returned as part of this response"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/StreamResponse"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "List of streaming sessions based on query"
+          }
+        },
+        "type": "object",
+        "required": ["offset", "limit", "count", "items"],
+        "title": "StreamPaginatedResponse",
+        "description": "List of streams.",
+        "example": {
+          "count": 2,
+          "items": [
+            {
+              "id": "82a67a28-66e2-4f01-bdf8-2a20971f2457",
+              "routes": {
+                "rproxy-a": [
+                  {
+                    "description": "signaling",
+                    "destination_port": 32452,
+                    "protocol": "TCP",
+                    "source_port": 12574
+                  },
+                  {
+                    "description": "media",
+                    "destination_port": 32433,
+                    "protocol": "UDP",
+                    "source_port": 10521
+                  }
+                ],
+                "rproxy-b": [
+                  {
+                    "description": "signaling",
+                    "destination_port": 32452,
+                    "protocol": "TCP",
+                    "source_port": 12534
+                  },
+                  {
+                    "description": "media",
+                    "destination_port": 32433,
+                    "protocol": "UDP",
+                    "source_port": 10522
+                  }
+                ]
+              }
+            }
+          ],
+          "limit": 50,
+          "offset": 0
+        }
+      },
+      "StreamResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Session ID",
+            "description": "Unique session ID"
+          },
+          "routes": {
+            "type": "object",
+            "title": "Session routes",
+            "description": "Hosts and ports to connect to the stream"
+          },
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SessionStatus"
+              }
+            ],
+            "title": "Session status",
+            "description": "Session status"
+          }
+        },
+        "type": "object",
+        "required": ["id", "routes", "status"],
+        "title": "StreamResponse",
+        "description": "Stream information.",
+        "example": {
+          "id": "82a67a28-66e2-4f01-bdf8-2a20971f2457",
+          "routes": {
+            "25.124.78.14": [
+              {
+                "description": "signaling",
+                "destination_port": 32452,
+                "protocol": "TCP",
+                "source_port": 31000
+              },
+              {
+                "description": "media",
+                "destination_port": 32433,
+                "protocol": "UDP",
+                "source_port": 31001
+              },
+              {
+                "description": "media",
+                "destination_port": 32433,
+                "protocol": "UDP",
+                "source_port": 31002
+              }
+            ]
+          },
+          "status": {
+            "condition": "ready",
+            "message": "Session is active",
+            "status": true
+          }
+        }
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

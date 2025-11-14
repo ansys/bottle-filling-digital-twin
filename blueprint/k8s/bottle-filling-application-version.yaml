@@ -1,0 +1,17 @@
+apiVersion: omniverse.nvidia.com/v1
+kind: ApplicationVersion
+metadata:
+  name: bottle-filling-twin-1.0.0
+  namespace: omni-streaming
+  labels:
+    app: bottle-filling-twin
+    applicationName: bottle-filling-twin
+    version: '1.0.0'
+spec:
+  # Reference OCI HelmRepository by name
+  helm_chart: ansys-acr/bottle-filling-twin
+  helm_chart_version: '1.1.0'
+
+  # Main container image (kit-app) from ACR
+  container: <YOUR-ACR-REPOSITORY>/bottle-filling-digital-twin/kit-app
+  container_version: 'latest'

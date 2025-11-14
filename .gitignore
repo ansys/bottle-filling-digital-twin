@@ -1,0 +1,11 @@
+*.pyc
+
+# Temporary build directories
+_temp-build/
+
+.DS_Store
+.vscode/
+.vs/
+
+# Pre-commit virtualenv
+.venv/

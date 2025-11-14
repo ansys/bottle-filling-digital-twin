@@ -1,0 +1,422 @@
+/**
+ * SimulationPage Styles
+ *
+ * Layout and styling for the main simulation interface
+ */
+
+.simulationPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--color-background);
+  color: var(--awc-theme-foreground-primary);
+}
+
+/* Error Banner */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--color-error-100);
+  border-bottom: 1px solid var(--color-error-300);
+  color: var(--color-error-800);
+}
+
+.errorIcon {
+  font-size: var(--font-size-lg);
+}
+
+.errorMessage {
+  font-weight: var(--font-weight-medium);
+}
+
+/* Status Bar */
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--awc-theme-background-neutral-background-1);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
+.statusSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.statusLabel {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+}
+
+.statusValue {
+  color: var(--awc-theme-foreground-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Status indicators */
+.status-idle {
+  color: var(--color-gray-600);
+}
+
+.status-initializing {
+  color: var(--color-warning-600);
+}
+
+.status-running {
+  color: var(--color-success-600);
+}
+
+.status-completed {
+  color: var(--color-primary-600);
+}
+
+.status-error {
+  color: var(--color-error-600);
+}
+
+/* End Stream Button */
+.endStreamButton {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-error-600);
+  color: var(--awc-theme-foreground-primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.endStreamButton:hover {
+  background-color: var(--color-error-700);
+}
+
+.endStreamButton:focus {
+  outline: 2px solid var(--color-error-600);
+  outline-offset: 2px;
+}
+
+/* Split Layout */
+.splitLayout {
+  display: flex;
+  flex: 1;
+  height: calc(
+    100vh - var(--header-height, 60px) - var(--status-bar-height, 48px)
+  );
+  min-height: 0; /* Allow flex children to shrink */
+  overflow: hidden; /* Prevent horizontal scrolling */
+  width: 100vw; /* Ensure it doesn't exceed viewport width */
+  max-width: 100vw;
+}
+
+.streamingArea {
+  flex: 0 0 70%;
+  display: flex;
+  padding: var(--spacing-md);
+  padding-right: var(--spacing-sm);
+  background-color: var(--awc-theme-background-neutral-background-1);
+  min-width: 0; /* Allow shrinking */
+  overflow: hidden; /* Prevent overflow */
+}
+
+.sidebarContent {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--spacing-sm);
+  min-width: 0; /* Allow shrinking */
+  overflow: hidden; /* Prevent overflow */
+  width: 100%;
+  background-color: var(--awc-theme-background-neutral-background-1);
+}
+
+.sidebarTabContent {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  margin-top: var(--spacing-sm);
+  width: 100%;
+  max-width: 100%;
+}
+
+.status-cancelled {
+  color: var(--color-gray-600);
+}
+
+/* Progress Bar */
+.progressContainer {
+  position: relative;
+  width: 120px;
+  height: 20px;
+  background-color: var(--color-gray-200);
+  border-radius: var(--border-radius-sm);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: var(--color-primary-600);
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-white);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Tab Navigation - Redesigned for Sidebar */
+.tabNavigation {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-md);
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.tabButton:hover:not(:disabled) {
+  color: var(--color-primary-600);
+  background-color: var(--color-primary-50);
+}
+
+.tabButtonActive {
+  color: var(--color-primary-600);
+  background-color: var(--color-primary-100);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tabButtonDisabled {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.tabIcon {
+  font-size: var(--font-size-base);
+  min-width: 20px;
+}
+
+.tabLabel {
+  font-weight: inherit;
+}
+
+/* Tab Content - Compact for Sidebar */
+.tabContent {
+  padding: 0;
+  overflow-y: auto;
+  background-color: transparent;
+}
+
+.tabContent h2 {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--awc-theme-foreground-primary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-sm);
+}
+
+.componentSection {
+  margin-bottom: 0;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Placeholder content */
+.placeholder {
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.placeholder p {
+  margin: var(--spacing-sm) 0;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .splitLayout {
+    flex-direction: column;
+  }
+
+  .streamingArea {
+    flex: 0 0 60%;
+    padding-right: var(--spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .statusBar {
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+  }
+
+  .splitLayout {
+    flex-direction: column;
+  }
+
+  .streamingArea {
+    flex: 0 0 50%;
+    padding: var(--spacing-sm);
+  }
+
+  .tabNavigation {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tabButton {
+    padding: var(--spacing-sm);
+    white-space: nowrap;
+    min-width: auto;
+  }
+
+  .tabIcon {
+    min-width: auto;
+  }
+
+  .tabLabel {
+    display: none;
+  }
+
+  .componentSection {
+    padding: 0;
+    margin-bottom: 0;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .simulationPage {
+    background-color: var(--color-background-dark, #111827);
+    color: var(--color-text-primary-dark, #f9fafb);
+  }
+
+  .statusBar,
+  .tabNavigation {
+    background-color: var(--color-surface-dark, #1f2937);
+    border-color: var(--color-border-dark, #374151);
+  }
+
+  .tabContent {
+    background-color: var(--color-background-dark, #111827);
+  }
+
+  .componentSection {
+    background-color: transparent;
+    border-color: transparent;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .tabButton {
+    border: 1px solid transparent;
+  }
+
+  .tabButtonActive {
+    border: 1px solid var(--color-primary-600);
+  }
+
+  .componentSection {
+    border-width: 2px;
+  }
+}
+
+/* Workflow Tabs Container */
+.workflowTabs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm); /* Reduced padding to save space */
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  width: 100%;
+  max-width: 100%;
+  background-color: var(--awc-theme-background-neutral-background-1);
+}
+
+/* Stream Configuration Loading and Error States */
+.streamingConfigLoading,
+.streamingConfigError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--spacing-xl);
+  text-align: center;
+  background-color: var(--color-surface);
+  border-radius: var(--border-radius-md);
+}
+
+.streamingConfigLoading h3,
+.streamingConfigError h3 {
+  margin-bottom: var(--spacing-md);
+  color: var(--awc-theme-foreground-primary);
+  font-size: var(--font-size-lg);
+}
+
+.streamingConfigLoading p,
+.streamingConfigError p {
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.streamingConfigError {
+  background-color: var(--color-error-50);
+  border: 1px solid var(--color-error-200);
+}
+
+.streamingConfigError h3 {
+  color: var(--color-error-800);
+}
+
+.streamingConfigError p {
+  color: var(--color-error-600);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .progressBar,
+  .mainContent,
+  .tabButton{
+    transition: none;
+  }
+}

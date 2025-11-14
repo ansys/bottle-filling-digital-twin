@@ -1,0 +1,114 @@
+# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+volumes:
+  omniverse_shader_cache:
+    driver: local
+  omniverse_extension_cache:
+    driver: local
+
+services:
+
+  fluent-v25:
+    image: ghcr.io/ansys/pyfluent:v25.2.0
+    command: 3d -gpu -t1 -g -sifile=/home/workdir/serverinfo.txt
+    working_dir: /home/workdir
+    volumes:
+      - ./fluent-workdir:/home/workdir
+      - ../content:/app/content
+    ports:
+      - ${FLUENT_PORT}:${FLUENT_PORT}
+    environment:
+      - ANSYSLMD_LICENSE_FILE=${ANSYSLMD_LICENSE_FILE}
+      - REMOTING_PORTS=${FLUENT_PORT}/portspan=2
+      - FLUENT_ALLOW_REMOTE_GRPC_CONNECTION=1
+      - FLUENT_SERVER_INFO_PERMISSION_SYSTEM=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video,graphics
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  kit-app:
+    image: ghcr.io/ansys/bottle-filling-digital-twin/kit-app:latest
+    environment:
+      - TEMP=/tmp/workdir
+      - FLUENT_HOST=fluent-v25
+      - FLUENT_PORT=${FLUENT_PORT}
+      - VISCOSITY=${VISCOSITY}
+      - BOTTLES_PER_HOUR=${BOTTLES_PER_HOUR}
+      - FILLING_HEIGHT=${FILLING_HEIGHT}
+      - TIMESTEP_SIZE=${TIMESTEP_SIZE}
+      - BOTTLE_UNITS_1=${BOTTLE_UNITS_1}
+      - BOTTLE_UNITS_2=${BOTTLE_UNITS_2}
+      - BOTTLE_UNITS_3=${BOTTLE_UNITS_3}
+      - FIRST_ITERATION_TIMESTEPS=${FIRST_ITERATION_TIMESTEPS}
+      - CONTENT_PATH=${CONTENT_PATH}
+      - OM_KIT_VERBOSE=1
+      - NVDA_KIT_ARGS=""
+      - NVDA_KIT_NUCLEUS=""
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video,graphics
+    privileged: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    depends_on:
+      - fluent-v25
+    volumes:
+      - ./fluent-workdir:/tmp/workdir
+      - ../content:/app/content
+      - omniverse_shader_cache:/home/ubuntu/.cache/ov
+      - omniverse_extension_cache:/home/ubuntu/.local/share/ov
+    ports:
+      - 47995-48012:47995-48012/udp
+      - 47995-48012:47995-48012/tcp
+      - 49000-49007:49000-49007/udp
+      - 49000-49007:49000-49007/tcp
+      - 8011:8011/tcp
+      - 8111:8111/tcp
+      - 49100:49100/tcp
+      - 1024:1024/udp
+  #   network_mode: "host"
+
+  web-app:
+    image: ghcr.io/ansys/bottle-filling-digital-twin/web-app:latest
+    build:
+      context: ../web-app
+      dockerfile: ../docker/Dockerfile.web-app
+    container_name: bottle-filling-web-app
+    volumes:
+      - ./stream.config.json:/etc/nginx/html/stream.config.json:ro
+    environment:
+      - NODE_ENV=${NODE_ENV}
+    ports:
+      - ${UI_PORT}:80
+    depends_on:
+      - kit-app

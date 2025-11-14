@@ -1,0 +1,164 @@
+/**
+ * SolverSetup Component Styles
+ */
+
+/* Container */
+.solver-setup {
+  position: relative;
+  background: transparent;
+  width: 100%;
+}
+
+/* Header */
+.solver-setup__header {
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.solver-setup__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--awc-theme-foreground-primary);
+  margin: 0 0 8px 0;
+}
+
+.solver-setup__description {
+  font-size: 14px;
+  color: var(--awc-theme-foreground-primary);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* Content */
+.solver-setup__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Selector/Field containers */
+.solver-setup__selector,
+.solver-setup__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.solver-setup__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--awc-theme-foreground-primary);
+  margin-bottom: 4px;
+}
+
+/* Select dropdown */
+.solver-setup__select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--awc-theme-foreground-primary);
+  background-color: var(--awc-theme-background-neutral-background-1);
+  border: 1px solid var(--awc-theme-border-neutral-default-hovered);
+  border-radius: 4px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.solver-setup__select:hover:not(:disabled) {
+  border-color: var(--awc-theme-background-primary-default);
+}
+
+.solver-setup__select:focus {
+  outline: none;
+  border-color: var(--awc-theme-background-primary-default);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.solver-setup__select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Actions */
+.solver-setup__actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.solver-setup__button {
+  flex: 1;
+  max-width: 200px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--awc-theme-background-primary-default);
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.5;
+  transition: all 0.2s ease;
+}
+
+.solver-setup__button--primary {
+  background-color: var(--awc-theme-background-primary-default);
+}
+
+.solver-setup__button:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.solver-setup__button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.solver-setup__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading overlay */
+.solver-setup__loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 10;
+}
+
+.solver-setup__loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(33, 150, 243, 0.2);
+  border-top: 3px solid var(--awc-theme-background-primary-default);
+  border-radius: 50%;
+  animation: solver-setup-spin 1s linear infinite;
+}
+
+@keyframes solver-setup-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.solver-setup__loading-overlay p {
+  margin: 0;
+  color: var(--awc-theme-foreground-primary);
+  font-size: 14px;
+}

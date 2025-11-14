@@ -1,0 +1,13 @@
+[package]
+title = "ANSYS Fluent Extension"
+version = "0.8.0"  # Semantic Versionning is used: https://semver.org/
+
+[dependencies]
+"omni.kit.commands" = {}
+"omni.kit.property.usd" = {}
+"omni.kit.quicklayout" = {}
+"omni.usd" = {}
+"omni.cae.data" = {}
+
+[[python.module]]
+name = "ansys.solver.fluent"

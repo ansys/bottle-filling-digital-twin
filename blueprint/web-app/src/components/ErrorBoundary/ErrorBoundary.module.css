@@ -1,0 +1,109 @@
+.error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--awc-common-size-4x);
+  background-color: var(--awc-theme-background-primary);
+}
+
+.error-boundary__container {
+  max-width: var(--awc-common-size-150x);
+  padding: var(--awc-common-size-8x);
+  background-color: var(--awc-theme-background-neutral-background-1);
+  border-radius: var(--awc-common-radius-card);
+  box-shadow: var(--awc-theme-elevation-shadow-3);
+  border: var(--awc-common-border-basic-width)
+    var(--awc-common-border-basic-style) var(--awc-theme-border-primary-weak);
+  text-align: center;
+}
+
+.error-boundary__title {
+  font-family: var(--awc-common-typography-x-large-heading-bold-font);
+  font-size: var(--awc-common-typography-x-large-heading-bold-size);
+  font-weight: var(--awc-common-typography-x-large-heading-bold-weight);
+  line-height: var(--awc-common-typography-x-large-heading-bold-line-height);
+  color: var(--awc-theme-foreground-danger);
+  margin-bottom: var(--awc-common-size-5x);
+}
+
+.error-boundary__message {
+  font-family: var(--awc-common-typography-large-body-regular-font);
+  font-size: var(--awc-common-typography-large-body-regular-size);
+  font-weight: var(--awc-common-typography-large-body-regular-weight);
+  line-height: var(--awc-common-typography-large-body-regular-line-height);
+  color: var(--awc-theme-foreground-secondary);
+  margin-bottom: var(--awc-common-size-6x);
+}
+
+.error-boundary__details {
+  margin: var(--spacing-lg) 0;
+  text-align: left;
+  background-color: var(--awc-theme-background-neutral-background-1);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.error-boundary__details summary {
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+  color: var(--awc-theme-foreground-primary);
+}
+
+.error-boundary__stack {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  color: var(--color-error);
+  background-color: var(--color-bg-tertiary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  margin-top: var(--spacing-sm);
+}
+
+.error-boundary__actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.error-boundary__button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  min-width: 120px;
+}
+
+.error-boundary__button--primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border-color: var(--color-primary);
+}
+
+.error-boundary__button--primary:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.error-boundary__button--secondary {
+  background-color: transparent;
+  color: var(--awc-theme-foreground-primary);
+  border-color: var(--color-border);
+}
+
+.error-boundary__button--secondary:hover {
+  background-color: var(--awc-theme-background-neutral-background-1);
+}
+
+.error-boundary__button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

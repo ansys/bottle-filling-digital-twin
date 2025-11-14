@@ -1,0 +1,7 @@
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path opacity="0.32" d="M6.5 2H22V17.5556H6.5V2Z" accent-color/>
+<path opacity="0.08" d="M2 6.44446L6.5 2V17.5L2 22V6.44446Z" accent-color/>
+<path opacity="0.8" d="M17.5557 6.44444L22.0001 2V17.5556L17.5557 22V6.44444Z" accent-color/>
+<path opacity="0.32" d="M6.44444 2L22 2L17.5556 6.44444H2L6.44444 2Z" accent-color/>
+<rect opacity="0.4" x="2" y="6.44446" width="15.5556" height="15.5556" accent-color/>
+</svg>

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  namespace: omni-streaming
+  labels:
+    app: web-app
+    app.kubernetes.io/name: web-app
+    app.kubernetes.io/instance: web-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+        app.kubernetes.io/name: web-app
+        app.kubernetes.io/instance: web-app
+    spec:
+      # Image pull secrets - update if needed
+      imagePullSecrets:
+        - name: acr-secret
+      containers:
+        - name: web-app
+          # Replace with your image repository: <YOUR-ACR>/bottle-filling-digital-twin/web-app:<tag>
+          image: <YOUR-CONTAINER-REGISTRY>/bottle-filling-digital-twin/web-app:<tag>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+              protocol: TCP
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: stream-config
+              mountPath: /etc/nginx/html/stream.config.json
+              subPath: stream.config.json
+              readOnly: true
+      # Node targeting: prefer nodeAffinity for agentpool selection (matching the Helm chart pattern)
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: agentpool
+                    operator: In
+                    values:
+                      - agentpool
+      tolerations: []
+      volumes:
+        - name: stream-config
+          configMap:
+            name: web-app-stream-config
+            items:
+              - key: stream.config.json
+                path: stream.config.json

@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/h"
+
+echo "🚀 Running pre-commit hook..."
+cd blueprint/web-app
+echo "📁 Changed to: $(pwd)"
+echo "🔧 Running lint:fix..."
+pnpm run lint:fix
+echo "💅 Running format..."
+pnpm run format
+echo "✅ Pre-commit hook completed!"

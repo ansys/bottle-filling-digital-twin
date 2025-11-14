@@ -1,0 +1,51 @@
+repos:
+
+  - repo: https://github.com/google/yamlfmt
+    rev: v0.20.0
+    hooks:
+      - id: yamlfmt
+        exclude: templates/.*
+        args:
+          - "-formatter"
+          - "max_line_length=120,retain_line_breaks=true,retain_line_breaks_single=true"
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.2
+    hooks:
+      # ONLY on blueprint\kit-app-source\source\extensions folder and Python files
+      - id: ruff-check
+        files: blueprint/kit-app-source/source/extensions/.*\.py
+        args: [--fix]
+      - id: ruff-format
+        files: blueprint/kit-app-source/source/extensions/.*\.py
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-yaml
+        # Exclude files inside a "templates" folder and the pnpm-lock.yaml file
+        exclude: templates/.*|pnpm-lock\.yaml
+      - id: trailing-whitespace
+
+  - repo: https://github.com/ansys/pre-commit-hooks
+    rev: v0.5.2
+    hooks:
+      - id: add-license-headers
+        # ONLY on blueprint\kit-app-source\source\extensions folder and Python files
+        files: blueprint/kit-app-source/source/extensions/.*\.py
+        args:
+          - --start_year=2025
+
+  # this validates our github workflow files
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.34.1
+    hooks:
+      - id: check-github-workflows
+
+  # this validates our pre-commit.ci configuration
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.6.1
+    hooks:
+      - id: check-pre-commit-ci-config
