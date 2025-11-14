@@ -356,9 +356,11 @@ Look for these logs in the browser developer tools console.
    />
    ```
 
-   ### Technical Support
+ 
+## Technical Support
 
-For any technical support or to request a (trial) license, please contact us at [bottle-filling-app@ansys.com](mailto:bottle-filling-app@ansys.com)
+For any technical support or to request a (trial) license,
+please contact us at [bottle-filling-app@ansys.com](mailto:bottle-filling-app@ansys.com)
 
 When sending your email, please indicate the purpose in the subject line:
 
