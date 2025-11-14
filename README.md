@@ -39,3 +39,15 @@ To run pre-commit checks:
 ```bash
 pre-commit run --all-files
 ```
+
+
+### Technical Support
+
+For any technical support or to request a (trial) license, please contact us at [bottle-filling-app@ansys.com](mailto:bottle-filling-app@ansys.com)
+
+When sending your email, please indicate the purpose in the subject line:
+
+- **Subject: Contact for Support** - For technical assistance, bug reports, or general inquiries
+- **Subject: Contact for License** - For Fluent license requests, trial license activation, or licensing issues
+
+We aim to respond to all inquiries as soon as possible.
