@@ -1,6 +1,18 @@
-# bottle-filling-digital-twin Dev
+# Bottle Filling Digital Twin
 
 Blueprint for developing vertical digital twin applications using Ansys Fluids simulations and NVIDIA Omniverse for bottle filling use case.
+
+![Bottle Filling AI simulation](./bottle-filling.png)
+
+## Architecture Overview
+
+### Bottle Filling Digital Twin Workflow
+
+![Bottle Filling Digital Twin Workflow](./White-Animated-Bottle-Filling-Workflow.svg)
+
+### Deployments in Docker Compose and OKAS K8s
+
+![Bottle Filling Digital Twin Architecture](./bottle-filling-digital-twin.svg)
 
 ## Setting up pre-commit
 
