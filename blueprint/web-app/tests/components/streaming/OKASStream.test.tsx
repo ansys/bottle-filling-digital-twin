@@ -1,5 +1,27 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import React from 'react';
-import { OKASStream } from '../../../src/components/streaming/OKASStream/OKASStream';
+import { OKASStream } from '@/components/streaming/OKASStream/OKASStream.tsx';
 
 describe('OKASStream', () => {
   afterEach(() => {
@@ -122,7 +144,7 @@ jest.mock('@nvidia/omniverse-webrtc-streaming-library', () => ({
 }));
 
 // Mock the useOKASSession hook
-jest.mock('../../../src/store/hooks/useOKASSession', () => ({
+jest.mock('@/store/hooks/useOKASSession.ts', () => ({
   useOKASSession: jest.fn(() => ({
     sessionId: null,
     sessionStatus: 'idle',
@@ -135,13 +157,13 @@ jest.mock('../../../src/store/hooks/useOKASSession', () => ({
 }));
 
 // Mock StreamVideoDisplay and StreamStatusOverlay
-jest.mock('../../../src/components/streaming/StreamVideoDisplay/StreamVideoDisplay', () => {
+jest.mock('@/components/streaming/StreamVideoDisplay/StreamVideoDisplay.tsx', () => {
   return function MockStreamVideoDisplay() {
     return <div data-testid="stream-video-display">Video Display</div>;
   };
 });
 
-jest.mock('../../../src/components/streaming/StreamStatusOverlay/StreamStatusOverlay', () => {
+jest.mock('@/components/streaming/StreamStatusOverlay/StreamStatusOverlay.tsx', () => {
   return function MockStreamStatusOverlay({
     isConnecting,
     error
@@ -158,7 +180,7 @@ jest.mock('../../../src/components/streaming/StreamStatusOverlay/StreamStatusOve
   };
 });
 
-jest.mock('../../../src/components/streaming/utils/streamEventHandlers', () => ({
+jest.mock('@/components/streaming/utils/streamEventHandlers.ts', () => ({
   createStreamEventHandlers: jest.fn(() => ({
     handleStart: jest.fn(),
     handleStop: jest.fn(),

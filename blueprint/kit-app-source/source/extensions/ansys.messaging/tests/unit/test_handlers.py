@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -49,7 +49,9 @@ class TestFluentMessagesHandler(TestCase):
 
     def test_on_get_current_state(self):
         self.handler._on_get_current_state(IEvent(type="getCurrentState"))
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "currentStateResponse"
+        )
         assert type == "currentStateResponse"
         assert message == {
             "canInitialize": False,
@@ -64,8 +66,9 @@ class TestFluentMessagesHandler(TestCase):
         self.handler._on_design_file_changed(
             IEvent(type="loadDesignFile", payload={"url": "some_url"})
         )
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "loadDesignFileResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "loadDesignFileResponse"
+        )
         assert message == {
             "result": "error",
             "error": "Can't connect to the Fluent session",
@@ -76,15 +79,17 @@ class TestFluentMessagesHandler(TestCase):
         self.handler._on_design_file_changed(
             IEvent(type="loadDesignFile", payload={"url": "some_url"})
         )
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "loadDesignFileResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "loadDesignFileResponse"
+        )
         assert message == {"result": "success", "error": ""}
 
     def test_run_journal_parallel(self):
         self.handler._check_connection()
         self.handler.run_journal_parallel("some/path")
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "runCalculationsResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "runCalculationsResponse"
+        )
         assert message == {"result": "success", "error": ""}
 
     @patch("ansys.messaging.handlers.open", return_value=StringIO(""))
@@ -100,8 +105,9 @@ class TestFluentMessagesHandler(TestCase):
                 },
             )
         )
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "runCalculationsResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "runCalculationsResponse"
+        )
         assert message == {"result": "success", "error": ""}
 
     @patch("ansys.messaging.handlers.open", return_value=StringIO(""))
@@ -112,24 +118,27 @@ class TestFluentMessagesHandler(TestCase):
                 payload={"sv": "some_sv", "fillingHeight": 1, "freeSurfaceOnly": True},
             )
         )
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "postProcessSolutionVariableResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "postProcessSolutionVariableResponse"
+        )
         assert message == {"result": "success", "error": ""}
 
     def test_on_open_solved_case(self):
         self.handler._on_open_solved_case(
             IEvent(type="openSolvedCase", payload={"usdFile": "test_case.usd"})
         )
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "openSolvedCaseResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "openSolvedCaseResponse"
+        )
         assert message == {"result": "success", "error": ""}
 
     def test_on_store_solved_case(self):
         self.handler._on_store_solved_case(
             IEvent(type="storeSolvedCase", payload={"case_name": "test_case"})
         )
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "storedSolvedCaseResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "storedSolvedCaseResponse"
+        )
         assert message == {"result": "success", "error": ""}
 
     def test_on_progress_updated(self):
@@ -140,26 +149,28 @@ class TestFluentMessagesHandler(TestCase):
 
         ei = EventInfo("Progressing", 50)
         self.handler.on_progress_updated("some session", ei)
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "updateStatusText"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "updateStatusText"
+        )
         assert message == {"text": "Progressing - 50%"}
 
     def test_send_update_message(self):
         self.handler.send_update_message("Some update")
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "updateMessageText"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "updateMessageText"
+        )
         assert message == {"text": "Some update"}
 
     def test_send_update_status(self):
         self.handler.send_update_status("Some status")
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "updateStatusText"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "updateStatusText"
+        )
         assert message == {"text": "Some status"}
 
     def test_send_message(self):
         self.handler.send_message("TestType", {"key": "value"})
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "TestType"
+        type, message = get_app().get_message_bus_event_stream().pop_message("TestType")
         assert message == {"key": "value"}
 
     def test_on_timestep_changed(self):
@@ -172,8 +183,9 @@ class TestFluentMessagesHandler(TestCase):
 
     def test_on_is_instance_healthy_positive(self):
         self.handler._on_is_instance_healthy(IEvent(type="isInstanceHealthy"))
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "isInstanceHealthyResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "isInstanceHealthyResponse"
+        )
         assert message == {"isHealthy": True}
 
     @patch(
@@ -182,6 +194,7 @@ class TestFluentMessagesHandler(TestCase):
     )
     def test_on_is_instance_healthy_negative(self, fake_connect):
         self.handler._on_is_instance_healthy(IEvent(type="isInstanceHealthy"))
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
-        assert type == "isInstanceHealthyResponse"
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "isInstanceHealthyResponse"
+        )
         assert message == {"isHealthy": False}

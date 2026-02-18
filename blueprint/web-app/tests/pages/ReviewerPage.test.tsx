@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * ReviewerPage Component Tests
  *
@@ -23,7 +45,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import '@testing-library/jest-dom';
 
-import ConnectedReviewerPage from '../../src/pages/ReviewerPage/ReviewerPage';
+import ConnectedReviewerPage from '@/pages/ReviewerPage/ReviewerPage.tsx';
 
 // Mock the AppStreamer - initialize mock function first
 jest.mock('@nvidia/omniverse-webrtc-streaming-library', () => ({
@@ -42,7 +64,7 @@ const mockSendMessage = AppStreamer.sendMessage as jest.MockedFunction<
 >;
 
 // Mock the heavy components to focus on ReviewerPage logic
-jest.mock('../../src/components/streaming/StreamRouter/StreamRouter', () => {
+jest.mock('@/components/streaming/StreamRouter/StreamRouter.tsx', () => {
   return function MockStreamRouter(props: any) {
     // expose a mock endStream function to tests via global so we can assert it was called
     React.useEffect(() => {
@@ -75,7 +97,7 @@ const mockTabStates = {
   },
 };
 
-jest.mock('../../src/hooks/useTabWorkflow', () => ({
+jest.mock('@/hooks/useTabWorkflow.ts', () => ({
   useTabWorkflow: jest.fn(() => ({
     tabStates: mockTabStates,
     toggleTab: jest.fn(),
@@ -88,7 +110,7 @@ jest.mock('../../src/hooks/useTabWorkflow', () => ({
 }));
 
 // Mock simulation components
-jest.mock('../../src/components/simulation', () => ({
+jest.mock('@/components/simulation', () => ({
   Results: function MockResults({
     timestep = 0,
     isFullscreen = false,
@@ -196,7 +218,7 @@ jest.mock('../../src/components/simulation', () => ({
 }));
 
 // Mock common components
-jest.mock('../../src/components/common', () => ({
+jest.mock('@/components/common', () => ({
   CollapsibleTab: function MockCollapsibleTab({
     title,
     stepNumber,
@@ -288,7 +310,7 @@ jest.mock('../../src/components/common', () => ({
 }));
 
 // Mock the entire components module to avoid import.meta issues
-jest.mock('../../src/components', () => ({
+jest.mock('@/components', () => ({
   Header: function MockHeader({
     appName,
     primaryLogo,
@@ -728,7 +750,7 @@ describe('ReviewerPage', () => {
       (global as any).__MOCK_END_STREAM_FN__ = undefined;
 
       // Temporarily override the StreamRouter mock to not call onEndStreamReady
-      jest.doMock('../../src/components/streaming/StreamRouter/StreamRouter', () => {
+      jest.doMock('@/components/streaming/StreamRouter/StreamRouter.tsx', () => {
         return function SilentMockStreamRouter() {
           return <div data-testid='stream-router'>Silent Stream Router</div>;
         };
@@ -738,7 +760,7 @@ describe('ReviewerPage', () => {
 
       // Re-import the component fresh to use the silent mock
       // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const FreshConnected = require('../../src/pages/ReviewerPage/ReviewerPage').default;
+      const FreshConnected = require('@/pages/ReviewerPage/ReviewerPage.tsx').default;
       renderWithStore(<FreshConnected />);
 
       const endBtn = screen.getByText('End Stream');

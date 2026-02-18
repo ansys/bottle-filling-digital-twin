@@ -1,0 +1,271 @@
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# Session Configuration (OKAS Integration)
+session:
+  name: "bottle-filling-twin"
+
+# Fluent Simulation Engine Configuration
+fluent:
+  enabled: true
+  image:
+    repository: ${FLUENT_IMAGE}
+    tag: ${FLUENT_IMAGE_TAG}
+    pullPolicy: Always
+
+  port: 40007
+  portSpan: 2
+
+  # Mount paths for Fluent container
+  workdirPath: /home/workdir
+  contentPath: /app/content
+
+  simulation:
+    viscosity: ${VISCOSITY}
+    bottlesPerHour: ${BOTTLES_PER_HOUR}
+    fillingHeight: ${FILLING_HEIGHT}
+    timestepSize: ${TIMESTEP_SIZE}
+    bottleUnits1: ${BOTTLE_UNITS_1}
+    bottleUnits2: ${BOTTLE_UNITS_2}
+    bottleUnits3: ${BOTTLE_UNITS_3}
+    firstIterationTimesteps: ${FIRST_ITERATION_TIMESTEPS}
+  resources:
+    requests:
+      memory: "32Gi"
+      cpu: "8"
+    limits:
+      memory: "64Gi"
+      cpu: "16"
+  # Node pool configuration for Fluent (from GPU_POOL_2ND in exports.sh)
+  nodePool: ${GPU_POOL_2ND}
+  nodeSelector: {}
+  tolerations: []
+
+# Kit-App (Omniverse) Configuration
+kitApp:
+  enabled: true
+  image:
+    repository: ${KIT_APP_IMAGE}
+    tag: ${KIT_APP_IMAGE_TAG}
+    pullPolicy: Always
+
+  ports:
+    signaling: 49100
+    media: 1024
+    http: 8011
+
+  # Mount paths for Kit-app container
+  workdirPath: /tmp/workdir
+  contentPath: /app/content
+  shaderCache:
+    enabled: true
+
+  env:
+    omKitVerbose: "1"
+    nvdaKitArgs: "${nvdaKitArgs}"
+    nvdaKitNucleus: ""
+
+  resources:
+    requests:
+      memory: "64Gi"
+      cpu: "16"
+    limits:
+      memory: "128Gi"
+      cpu: "20"
+
+  securityContext:
+    privileged: true
+
+  # Node pool configuration for Kit-app (from GPU_POOL in exports.sh)
+  nodePool: ${GPU_POOL}
+  nodeSelector: {}
+  tolerations: []
+
+# Envoy Proxy Sidecar Configuration (OKAS Pattern)
+envoy:
+  enabled: true
+  image:
+    repository: envoyproxy/envoy
+    tag: v1.18-latest
+    pullPolicy: Always
+
+  proxyPort: 49200
+  healthPort: 8080
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: 8080
+    initialDelaySeconds: 5
+    periodSeconds: 5
+
+# Storage Configuration
+storage:
+  storageClass: ""
+
+  fluentWorkdir:
+    enabled: true
+    type: azureFile  # Changed to azureFile to support ReadWriteMany (Azure Disks only support ReadWriteOnce)
+    size: 2Gi
+    accessMode: ReadWriteMany
+    existingClaim: ""
+    sizeLimit: 2Gi  # For emptyDir type
+    useSessionSubPath: true  # If true, use session-specific subdirectories for multiple sessions (prevents conflicts)
+    azureFile:  # For Azure Files type (supports ReadWriteMany)
+      secretName: ${AZURE_STORAGE_SECRET_NAME}  # Kubernetes secret with Azure Storage account name and key
+      shareName: ${FILE_SHARE_NAME}-fluent-workdir   # Azure File Share name (shared across all sessions, with session-specific subdirs)
+      readOnly: false  # Fluent needs write access, kit-app will mount as readOnly
+
+  contentData:
+    enabled: true
+    type: azureFile  # Options: emptyDir, pvc, azureFile
+    size: 100Gi
+    accessMode: ReadWriteOnce
+    readOnly: false  # Kit-app needs write access to generate journal files (Init.jou, FullRun.jou)
+    existingClaim: ""
+    sizeLimit: 2Gi  # For emptyDir type
+    azureFile:  # For Azure Files type
+      secretName: ${AZURE_STORAGE_SECRET_NAME}  # Kubernetes secret with Azure Storage account name and key
+      shareName: ${FILE_SHARE_NAME}   # Azure File Share name (shared across all sessions)
+      readOnly: false  # Kit-app needs write access for generated journal files
+    # Note: Fluent mounts this as read-only, kit-app needs write access for journal file generation
+
+  shaderCache:
+    enabled: true
+    type: emptyDir
+    size: 2Gi  # For PVC type
+    sizeLimit: 2Gi  # For emptyDir type
+
+  extensionCache:
+    enabled: true
+    type: emptyDir
+    size: 2Gi  # For PVC type
+    sizeLimit: 2Gi  # For emptyDir type
+
+  omniverseCache:
+    enabled: true  # Enable/disable persistent cache for Omniverse Kit
+    type: azureFile  # Use Azure Files for shared access across all sessions
+    size: 50Gi  # Cache size
+    accessMode: ReadWriteMany  # Required for shared access across multiple pods
+    existingClaim: ""
+    azureFile:  # For Azure Files type
+      secretName: ${AZURE_STORAGE_SECRET_NAME}  # Kubernetes secret with Azure Storage account name and key
+      shareName: ${FILE_SHARE_NAME}-omniverse-cache   # Azure File Share name (shared across all sessions)
+      readOnly: false  # Cache needs write access
+
+# License Configuration
+license:
+  secretName: ansys-license-secret
+  secretKey: ANSYSLMD_LICENSE_FILE
+
+# Service Configuration
+service:
+  type: LoadBalancer
+  sessionAffinity: ClientIP
+
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    external-dns.alpha.kubernetes.io/ttl: "5"
+    service.beta.kubernetes.io/port_8080_health-probe_protocol: HTTP
+    service.beta.kubernetes.io/port_8080_health-probe_port: "8080"
+    service.beta.kubernetes.io/port_8080_health-probe_request-path: /health
+
+  ports:
+    media:
+      port: 1024
+      targetPort: 1024
+      protocol: UDP
+
+    signaling:
+      port: 49100
+      targetPort: 49200
+      protocol: TCP
+
+    health:
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+
+# Pod Configuration
+pod:
+  annotations: {}
+  labels: {}
+  nodeSelector:
+    nvidia.com/gpu.present: "true"
+  priorityClassName: ""  # Optional: Set priority class for pod scheduling
+  tolerations: []  # Optional: Add tolerations for node taints
+
+# Init Container Configuration
+initContainer:
+  enabled: true
+  image:
+    repository: busybox
+    tag: latest
+    pullPolicy: Always
+
+# Content Image Configuration (for init container)
+contentImage:
+  enabled: false  # Set to true to enable init container for content copying
+  repository: ${ACR_NAME}.azurecr.io/bottle-filling-digital-twin/content
+  tag: latest
+  pullPolicy: Always
+  sourcePath: /content
+
+# Image Pull Secrets
+imagePullSecrets:
+  - name: acr-secret
+
+# Service Account
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod Anti-Affinity Configuration
+podAntiAffinity:
+  enabled: true
+
+# GPU Configuration
+gpu:
+  driverCapabilities: "compute,utility,video,graphics"
+  visibleDevices: "all"
+
+streamingKit:
+  sessionId: ""
+  name: "bottle-filling-twin"
+  userId: ""

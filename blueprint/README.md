@@ -36,283 +36,65 @@ The blueprint consists of three main services:
 
 ## Prerequisite for OKAS on a Kubernetes deployment
 
-- [NVIDIA Omniverse Kit App Streaming Prerequisites](https://docs.omniverse.nvidia.com/ovas/latest/marketplace/azure/prerequisites.html) in the Azure marketplace
-- Ubuntu VM with Ansys Fluent 2025 R2 and Docker installed
-- Kubectl 1.32.7
-- Helm 3.14.0
-- Azure CLI
-- Azure subscription with necessary permissions and quota allowance for `72 NVasd_A10_v5 VCPUs` and `12 Ds_v3 VCPUs`
-- Ansys license
-- Knowledge of setting up an Ansys license server in a Linux VM
+| Requirement | Details |
+| ----------- | ------- |
+| **Operating System** | Ubuntu 22.04 (required) |
+| **Azure Subscription** | Active subscription with Contributor or Owner role |
+| **Azure Permissions** | Ability to create resource groups, VNets, AKS clusters, storage accounts, ACR |
+| **Compute Quotas** | NVads A10 v5 family: 72+ vCPUs, Ds_v3 family: 12+ vCPUs |
+| **Application Prerequisites** | Kit application image, Fluent image, Ansys license server accessible |
 
 ## Prerequisites for a Docker Compose deployment
 
 - Docker and Docker Compose
-- NVIDIA RTX GPU with CUDA support
+- NVIDIA RTX GPU with CUDA support (RTX (2000, 4000, 6000 and such), A10, A100, H100, H200, B100, B200 or L40 series)
 - NVIDIA Container Toolkit
 - Ansys Fluent license server access
 - Minimum 16 GB RAM, 8 GB GPU memory recommended
+- Preferably run on Linux for best compatibility with NVIDIA drivers. Windows and WSL can cause additional configuration overhead and have not been tested.
 
 ## Deployment on OKAS on AKS
 
-See the deployment guide, [Deploy bottle-filling digital twin app to OKAS](./k8s/DEPLOYMENT_GUIDE.md).
+See the deployment guide: [Bottle Filling Digital Twin - Deployment Guide](./doc/DEPLOYMENT_OKAS.md).
 
 ## Deployment in Docker Compose
 
-### 1. Set up Cloud VM
+For detailed Docker Compose deployment instructions, see the comprehensive guide: [Docker Compose Deployment Guide](./doc/DEPLOYMENT_DOCKER_COMPOSE.md).
 
-#### Azure
+The guide covers:
 
-A VM with Ansys License Manager is a prerequisite for this deployment. The Fluent solver uses it to check out licenses.
+- **Local deployment** - For local machines or VMs with VDI (access via localhost)
+- **Remote deployment** - For cloud VMs accessed via public IP
+- Complete configuration reference for both scenarios
+- Building Fluent, Kit App, and Web App images
+- Step-by-step setup instructions
+- Troubleshooting and common issues
 
-**NOTE:** Installation of the Ansys License Manager is outside the scope of this document.
+### Quick Start
 
-The Ansys License Manager should be in the same subnet as the VM used for this deployment. Allow communication on port 1055 to the Ansys License Manager from the VM used for this deployment.
-
-1. Create a new VM with an NVIDIA GPU. For example, NV-series (Standard_NV12ads_A10_v5 - 12 vcpus, 110 GiB memory ($662.84/month)).
-2. Choose Ubuntu Server 22.04 LTS as the OS.
-3. Select US East as the region.
-4. Use user and RSA public key authentication. (Keep your private key safe.)
-5. Open inbound ports 22 (SSH), 49100 (Kit WebSocket), 1024 (Kit UDP), and 3001 (Web UI).
-6. Ensure the VM has at least 100 GB of OS disk size.
-7. Ensure secure boot is disabled in the VM settings after creation.
-8. Install NVIDIA driver in the VM settings:
-
-   a. Go to **VM settings**.
-
-   b. Navigate to **Extensions + Applications**.
-
-   c. Click **Add**.
-
-   d. Select **NvidiaGpuDriverLinux** from the list.
-
-   e. Click **Create** to install the driver on your VM.
-
-9. Use a secure shell (SSH) connection to access the virtual machine. (Instead of entering a password, use your private SSH key to authenticate your identity.)
-
-### 2. Configure environment
-
-Edit the `.env` file inside the `docker` directory to set environment variables for the services, including license server details and network settings.
-
-#### `PUBLIC_IPV4` and `PUBLIC_IPV4_SUBNET`
-
-- `PUBLIC_IPV4`: Set this to your VM's public IP address.
-  - For Azure VMs: Find this in the Azure portal under your VM's networking section.
-  - For AWS EC2: Use the `Public IPv4 address` from the instance details.
-  - For local deployment: Use your machine's external IP address or `127.0.0.1`
-- `PUBLIC_IPV4_SUBNET`: Set this to your VM's subnet range
-  - Take your public IP address and replace the last octet with `0/24`.
-  - For example, if `PUBLIC_IPV4` is `172.172.244.132`, then `PUBLIC_IPV4_SUBNET` should be `172.172.244.0/24`.
-
-#### `ANSYSLMD_LICENSE_FILE`
-
-Configure `ANSYSLMD_LICENSE_FILE` based on your setup:
-
-- **Cloud VMs**: `"1055@<license-server-internal-ip>"` (Use the internal/private IP address of your license server VM.)
-- **Local Docker**: `"1055@host.docker.internal"` (Use if the license server is on the host machine, provided you have a license server running locally and `host.docker.internal` resolves correctly to your host.)
-- **Remote license server**: `"1055@<license-server-hostname-or-ip>"`
-
-### 3. Run deployment
-
-Use the automated deployment script to build and start all services:
-
+**Local deployment:**
 ```bash
-# Navigate to the scripts directory
 cd blueprint/scripts
-
-# Run the deployment script
-./deploy-ansys-cae-kit.sh
+./deploy-docker-compose.sh
 ```
+Access at: `http://localhost:3001`
 
-The script performs these actions:
-
-1. Builds the Ansys CAE Kit container.
-2. Tags the container with the required image name.
-3. Validates the Docker Compose configuration.
-4. Starts all services with the `docker compose up -d` command.
-
-### 4. Deply manually (alternative)
-
-If you prefer manual control, run these commands:
-
+**Remote deployment:**
 ```bash
-
-# Navigate to the scripts directory
 cd blueprint/scripts
-
-# Build the Ansys CAE Kit container
-./build-kit-app-image.sh kit-app
-
-# Tag the image
-docker tag kit-app:latest ghcr.io/ansys/bottle-filling-digital-twin/kit-app:latest
-
-# Navigate to the docker directory
-cd blueprint/docker
-
-# Start services
-docker compose up -d
-
-# View logs
-docker compose logs -f
-
-# Stop services
-docker compose down
+./deploy-docker-compose.sh --remote
 ```
+Access at: `http://<your-vm-public-ip>:3001`
 
-### 5. Access app
-
-Once deployed, access the services at:
-
-- **Web Interface**: `http://<your-vm-ip>:3001`
-
-### 6. Monitor and troubleshoot
-
-Use these commands to monitor and troubleshoot services:
-
+**With Fluent image build:**
 ```bash
-# Check service status
-docker compose ps
-
-# View logs for all services
-docker compose logs -f
-
-# View logs for specific service
-docker compose logs -f kit-app
-docker compose logs -f fluent-v25
-docker compose logs -f web-app
-
-# Restart services
-docker compose restart
-
-# Stop all services
-docker compose down
+cd blueprint/scripts
+./deploy-docker-compose.sh --build-fluent /ansys_inc
 ```
 
-## Configuration
+The script builds kit-app and web-app images by default. Use `--build-fluent` with the path to your Ansys installation to also build the Fluent image.
 
-### Hardware requirements
-
-- **GPU**: NVIDIA RTX GPU with 8+ GB VRAM
-- **CPU**: 8+ cores recommended
-- **RAM**: 16+ GB system memory
-- **Storage**: 50+ GB free space
-
-If deploying to Azure, use NV-series VMs (such as NV12ads A10 v5 and up) for optimal GPU performance.
-
-## Troubleshooting
-
-### Common issues
-
-- **GPU not found**: Ensure NVIDIA drivers and Container Toolkit are installed.
-- **License errors**: Verify `ANSYSLMD_LICENSE_FILE` points to an accessible license server.
-- **Network issues**: Check that `PUBLIC_IPV4_SUBNET` matches your network configuration.
-- **Port conflicts**: Ensure required ports (8011, 40007, and 3001) are available.
-
-### Support
-
-For technical support and issues:
-
-- Check Docker and service logs.
-- Verify GPU and license server connectivity.
-- Ensure all environment variables are correctly configured.
-
-## Stream configuration guide
-
-The app supports dynamic streaming configuration using the `stream.config.json` file in the `/docker` folder.
-
-### Configuration options
-
-#### Local streaming (`source: "local"`)
-
-For local development or when the Omniverse Kit app is running locally, you should add the server address where it is running. By default, it is `127.0.0.1`.
-
-```json
-{
-  "source": "local",
-  "local": {
-    "server": "127.0.0.1"
-  }
-}
-```
-
-- **server**: IP address of the local Omniverse Kit instance
-- **port**: Automatically set to `54321`
-- **fps**: 60 FPS for optimal local performance
-- **maxReconnects**: 5 (fewer retries for local)
-- **authenticate**: false
-
-#### GeForce Now streaming (`source: "gfn"`)
-
-For streaming using NVIDIA GeForce Now:
-
-```json
-{
-  "source": "gfn",
-  "gfn": {
-    "catalogClientId": "your-catalog-client-id",
-    "clientId": "your-client-id",
-    "cmsId": 12345
-  }
-}
-```
-
-- **catalogClientId**: GFN catalog client ID
-- **clientId**: App client ID
-- **cmsId**: Content management system ID
-- **port**: 443 (HTTPS)
-- **fps**: 30 FPS (optimized for cloud streaming)
-- **maxReconnects**: 20
-- **authenticate**: true
-
-#### Remote streaming server (`source: "stream"`)
-
-For streaming from a remote Omniverse streaming server:
-
-```json
-{
-  "source": "stream",
-  "stream": {
-    "appServer": "my-streaming-server.example.com",
-    "streamServer": "stream.example.com"
-  }
-}
-```
-
-- **appServer**: Omniverse app server hostname/IP address (required)
-- **streamServer**: Dedicated streaming server (optional, uses `appServer` if not specified)
-- **port**: 54321
-- **fps**: 30 FPS
-- **maxReconnects**: 20
-- **authenticate**: false
-
-## Usage with Docker Compose deployment
-
-1. Edit `docker/stream.config.json` to set your desired configuration.
-2. Restart the containers to apply changes:
-
-```bash
-# Stop services
-docker compose down
-# Start services
-docker compose up -d
-```
-
-### Troubleshooting tips
-
-- **Configuration not loading**: Check the browser network tab for 404 errors on `stream.config.json`.
-- **Source indicator not showing**: Verify the `source` field matches one of these values: `"local"`, `"gfn"`, or `"stream"`.
-- **Connection issues**: Check console logs for detailed error messages from the AppStream component.
-
-## Console logging
-
-The implementation includes extensive console logging for debugging:
-
-- `SimulationPage: componentDidMount called`: Component is mounting.
-- `SimulationPage: Loaded stream configuration: {...}`: Configuration loaded successfully.
-- `AppStream: Initializing {type} stream to {server}:{port}`: Stream is initializing.
-- `SimulationPage: About to render AppStream with props: {...}`: Properties are being passed to the AppStream component.
-
-Look for these logs in the browser developer tools console.
+For detailed instructions, prerequisites, and configuration details, see [DEPLOYMENT_DOCKER_COMPOSE.md](./doc/DEPLOYMENT_DOCKER_COMPOSE.md).
 
 ## UI customizations
 
@@ -355,17 +137,3 @@ Look for these logs in the browser developer tools console.
    primaryLogo={{ src:"/assets/company-logo.png", alt: "Company Logo", width: 150, height: 50 }}
    />
    ```
-
- 
-## Technical Support
-
-For any technical support or to request a (trial) license,
-please contact us at [bottle-filling-app@ansys.com](mailto:bottle-filling-app@ansys.com)
-
-When sending your email, please indicate the purpose in the subject line:
-
-- **Subject: Contact for Support** - For technical assistance, bug reports, or general inquiries
-- **Subject: Contact for License** - For Fluent license requests, trial license activation, or licensing issues
-
-We aim to respond to all inquiries as soon as possible.
-

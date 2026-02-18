@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -63,6 +63,33 @@ class MessageBus:
 
     def create_subscription_to_pop_by_type(self, arg1, arg2):
         pass
+
+    def pop_message(self, expected_type: str = None):
+        """Pop the most recent message optionally matching `expected_type`.
+
+        If `expected_type` is provided, search from the end of the queue for the
+        most recent message with that event_type, remove it from the queue and
+        return it. If not found, raise an AssertionError.
+        """
+        if not self.queue:
+            raise IndexError("Message queue is empty")
+        if expected_type is None:
+            return self.queue.pop()
+        # search from the end for the expected type. If not immediately present,
+        # poll briefly to allow background threads to append the expected
+        # message (some operations dispatch asynchronously).
+        import time
+
+        timeout = 0.5
+        interval = 0.01
+        waited = 0.0
+        while waited <= timeout:
+            for i in range(len(self.queue) - 1, -1, -1):
+                if self.queue[i][0] == expected_type:
+                    return self.queue.pop(i)
+            time.sleep(interval)
+            waited += interval
+        raise AssertionError(f"No message of type {expected_type} found in queue")
 
 
 class OmniApp:

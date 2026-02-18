@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -48,6 +48,8 @@ class TestMessagesManager(TestCase):
         self.manager._on_change_solver(
             IEvent(type="changeSolver", payload={"solver": "fluent"})
         )
-        type, message = get_app().get_message_bus_event_stream().queue.pop()
+        type, message = get_app().get_message_bus_event_stream().pop_message(
+            "updateMessageText"
+        )
         assert type == "updateMessageText"
         assert message == {"text": "Changing solver to fluent"}

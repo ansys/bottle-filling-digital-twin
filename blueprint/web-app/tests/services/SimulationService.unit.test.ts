@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 /**
  * Unit tests for SimulationService
@@ -26,7 +48,7 @@ describe('SimulationService', () => {
   });
 
   test('getAvailableDesigns: success and failure', async () => {
-    const SimulationService = require('../../src/services/SimulationService').default;
+    const SimulationService = require('@/services/SimulationService.ts').default;
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => [{ id: 'a', name: 'Design A', url: '/a' }] });
     const designs = await SimulationService.getAvailableDesigns();
@@ -37,7 +59,7 @@ describe('SimulationService', () => {
   });
 
   test('loadDesignFile: success and failure', async () => {
-    const SimulationService = require('../../src/services/SimulationService').default;
+    const SimulationService = require('@/services/SimulationService.ts').default;
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => ({ id: '1', name: 'X' }) });
     const d = await SimulationService.loadDesignFile('1');
@@ -48,7 +70,7 @@ describe('SimulationService', () => {
   });
 
   test('startSimulation / stopSimulation / exportResults flows', async () => {
-    const SimulationService = require('../../src/services/SimulationService').default;
+    const SimulationService = require('@/services/SimulationService.ts').default;
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => ({ simulationId: 'sim1', status: 'running' }) });
     const start = await SimulationService.startSimulation({ designFileId: '1', solverConfig: {} });
@@ -66,7 +88,7 @@ describe('SimulationService', () => {
   });
 
   test('getSimulationStatus and getSolutionVariables error fallbacks', async () => {
-    const SimulationService = require('../../src/services/SimulationService').default;
+    const SimulationService = require('@/services/SimulationService.ts').default;
 
     (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: true, json: async () => ({ status: 'running', progress: 42, currentStep: 'Processing' }) });
     const s = await SimulationService.getSimulationStatus('sim1');

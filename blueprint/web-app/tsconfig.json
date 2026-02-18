@@ -22,7 +22,7 @@
     "noFallthroughCasesInSwitch": true,
 
     /* Path mapping */
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"],
       "@/components/*": ["src/components/*"],
@@ -36,6 +36,7 @@
       "@/constants/*": ["src/constants/*"]
     }
   },
-  "include": ["src", "tests"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src", "tests"],
+  "references": [{ "path": "./tsconfig.node.json"}]
 }

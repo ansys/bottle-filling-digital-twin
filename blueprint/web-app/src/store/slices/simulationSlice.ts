@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * Simulation Slice
  *
@@ -69,6 +91,17 @@ export interface SimulationState {
   error: string | null;
   statusText: string | null; // Progress text from Omniverse Kit
   lastUpdated: number | null;
+
+  // Kit-app status tracking (for e2e tests)
+  kitAppReady: boolean;
+  rtxStatus: {
+    rtxEnabled: boolean;
+    rt2Enabled: boolean;
+  } | null;
+  modelLoadProgress: {
+    stage: string;
+    progress: number;
+  } | null;
 }
 
 // Initial state
@@ -116,6 +149,11 @@ const initialState: SimulationState = {
   error: null,
   statusText: null,
   lastUpdated: null,
+
+  // Kit-app status tracking (for e2e tests)
+  kitAppReady: false,
+  rtxStatus: null,
+  modelLoadProgress: null,
 };
 
 // Slice
@@ -260,6 +298,31 @@ const simulationSlice = createSlice({
     ) => {
       state.simulationStatus = action.payload;
     },
+
+    // Kit-app status tracking actions (for e2e tests)
+    setKitAppReady: (state, action: PayloadAction<boolean>) => {
+      state.kitAppReady = action.payload;
+    },
+
+    setRtxStatus: (
+      state,
+      action: PayloadAction<{ rtxEnabled: boolean; rt2Enabled: boolean }>
+    ) => {
+      state.rtxStatus = action.payload;
+    },
+
+    setModelLoadProgress: (
+      state,
+      action: PayloadAction<{ stage: string; progress: number }>
+    ) => {
+      state.modelLoadProgress = action.payload;
+    },
+
+    resetKitAppStatus: state => {
+      state.kitAppReady = false;
+      state.rtxStatus = null;
+      state.modelLoadProgress = null;
+    },
   },
 });
 
@@ -289,6 +352,11 @@ export const {
   clearError,
   setLoading,
   setSimulationStatus,
+  // Kit-app status tracking actions (for e2e tests)
+  setKitAppReady,
+  setRtxStatus,
+  setModelLoadProgress,
+  resetKitAppStatus,
 } = simulationSlice.actions;
 
 // Export reducer

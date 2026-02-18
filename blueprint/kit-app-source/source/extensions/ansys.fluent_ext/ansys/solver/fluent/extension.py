@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -25,6 +25,7 @@ import asyncio
 import logging
 from pathlib import Path
 
+import carb.events
 import carb.settings
 import omni.ext
 import omni.kit.app
@@ -75,6 +76,9 @@ class CreateSetupExtension(omni.ext.IExt):
         settings.set("/persistent/rtx/modes/rt2/enabled", True)
         settings.set("/rtx/rtpt/maxBounces", 4)
         settings.set("/rtx/rtpt/maxSpecularAndTransmissionBounces", 4)
+
+        # Note: RTX status notification is now sent by FluentMessagesHandler._on_is_instance_healthy
+        # after the WebRTC connection is established
 
         """
         setup the window layout, menu, final configuration

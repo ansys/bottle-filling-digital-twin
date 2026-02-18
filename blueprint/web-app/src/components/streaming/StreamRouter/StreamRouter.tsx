@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * StreamRouter Component
  *
@@ -5,12 +27,12 @@
  */
 
 import React, { Component } from 'react';
-import { StreamConfig } from '../../../types';
-import LocalStreamContainer from '../LocalStream/LocalStreamContainer';
-import OKASStreamContainer from '../OKASStream/OKASStreamContainer';
-import GFNNotImplemented from '../GFNNotImplemented/GFNNotImplemented';
-import StreamSourceError from '../StreamSourceError/StreamSourceError';
-import StreamMessenger from '../StreamMessenger';
+import { StreamConfig } from '@/types';
+import LocalStreamContainer from '../LocalStream/LocalStreamContainer.tsx';
+import OKASStreamContainer from '../OKASStream/OKASStreamContainer.tsx';
+import GFNNotImplemented from '../GFNNotImplemented/GFNNotImplemented.tsx';
+import StreamSourceError from '../StreamSourceError/StreamSourceError.tsx';
+import StreamMessenger from '../StreamMessenger.ts';
 
 export interface StreamRouterProps {
   streamConfig: StreamConfig;

@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -34,7 +34,12 @@ class FluentSession:
         """Connect to the Fluent session."""
         print("Connecting to", host + ":" + str(port) + "@" + password)
         self.__solver = pyfluent.connect_to_fluent(
-            ip=host, port=port, cleanup_on_exit=True, password=password
+            ip=host,
+            port=port,
+            cleanup_on_exit=True,
+            password=password,
+            allow_remote_host=True,
+            insecure_mode=True,
         )
 
     def run_journal(self, journal_filepath):

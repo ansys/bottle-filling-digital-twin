@@ -1,0 +1,66 @@
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+global:
+  imagePullSecrets:
+    - name: regcred
+  ingress:
+    host: ${PUBLIC_IP_FQDN}
+    className: internal-nginx
+    annotations:
+      kubernetes.io/ingress.class: "internal-nginx"
+      nginx.ingress.kubernetes.io/rewrite-target: /$2
+      # CORS-related annotations
+      nginx.ingress.kubernetes.io/enable-cors: "true"
+      nginx.ingress.kubernetes.io/cors-allow-origin: "*"
+      nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
+      nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Accept,Origin"
+      nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range"
+      nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+      nginx.ingress.kubernetes.io/cors-max-age: "86400"
+      # SSL/TLS settings
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+      nginx.ingress.kubernetes.io/hsts: "true"
+      nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
+      nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
+
+applications:
+  ingress:
+    path: "/applications(/|$)(.*)"
+    pathType: ImplementationSpecific
+    enabled: true
+  serviceConfig:
+    root_path: "/applications"
+    prefix_url: cfg/apps
+
+  image:
+    #repository: nvcr.io/nvidian/omniverse/nv-ov-svc-applications
+    repository: nvcr.io/nvidia/omniverse/kit-appstreaming-applications
+    pullPolicy: Always
+    tag: 1.10.1
+  applications: {}
+  profiles: {}
+  monitoring:
+    # -- Enables the creation of ServiceMonitor resource.
+    enabled: false
+    # -- Prometheus namespace.
+    prometheusNamespace: omni-streaming
