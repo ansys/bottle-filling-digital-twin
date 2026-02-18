@@ -115,7 +115,11 @@ def pytest_sessionstart(session):
         (
             "carb.settings",
             None,
-            {"get_settings": lambda: types.SimpleNamespace(get=lambda key, default=None: None)},
+            {
+                "get_settings": lambda: types.SimpleNamespace(
+                    get=lambda key, default=None: None
+                )
+            },
         ),
         (
             "omni.kit.notification_manager",

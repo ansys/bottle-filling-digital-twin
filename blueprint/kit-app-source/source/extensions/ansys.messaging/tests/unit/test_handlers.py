@@ -49,8 +49,8 @@ class TestFluentMessagesHandler(TestCase):
 
     def test_on_get_current_state(self):
         self.handler._on_get_current_state(IEvent(type="getCurrentState"))
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "currentStateResponse"
+        type, message = (
+            get_app().get_message_bus_event_stream().pop_message("currentStateResponse")
         )
         assert type == "currentStateResponse"
         assert message == {
@@ -66,8 +66,10 @@ class TestFluentMessagesHandler(TestCase):
         self.handler._on_design_file_changed(
             IEvent(type="loadDesignFile", payload={"url": "some_url"})
         )
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "loadDesignFileResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("loadDesignFileResponse")
         )
         assert message == {
             "result": "error",
@@ -79,16 +81,20 @@ class TestFluentMessagesHandler(TestCase):
         self.handler._on_design_file_changed(
             IEvent(type="loadDesignFile", payload={"url": "some_url"})
         )
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "loadDesignFileResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("loadDesignFileResponse")
         )
         assert message == {"result": "success", "error": ""}
 
     def test_run_journal_parallel(self):
         self.handler._check_connection()
         self.handler.run_journal_parallel("some/path")
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "runCalculationsResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("runCalculationsResponse")
         )
         assert message == {"result": "success", "error": ""}
 
@@ -105,8 +111,10 @@ class TestFluentMessagesHandler(TestCase):
                 },
             )
         )
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "runCalculationsResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("runCalculationsResponse")
         )
         assert message == {"result": "success", "error": ""}
 
@@ -118,8 +126,10 @@ class TestFluentMessagesHandler(TestCase):
                 payload={"sv": "some_sv", "fillingHeight": 1, "freeSurfaceOnly": True},
             )
         )
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "postProcessSolutionVariableResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("postProcessSolutionVariableResponse")
         )
         assert message == {"result": "success", "error": ""}
 
@@ -127,8 +137,10 @@ class TestFluentMessagesHandler(TestCase):
         self.handler._on_open_solved_case(
             IEvent(type="openSolvedCase", payload={"usdFile": "test_case.usd"})
         )
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "openSolvedCaseResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("openSolvedCaseResponse")
         )
         assert message == {"result": "success", "error": ""}
 
@@ -136,8 +148,10 @@ class TestFluentMessagesHandler(TestCase):
         self.handler._on_store_solved_case(
             IEvent(type="storeSolvedCase", payload={"case_name": "test_case"})
         )
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "storedSolvedCaseResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("storedSolvedCaseResponse")
         )
         assert message == {"result": "success", "error": ""}
 
@@ -149,22 +163,22 @@ class TestFluentMessagesHandler(TestCase):
 
         ei = EventInfo("Progressing", 50)
         self.handler.on_progress_updated("some session", ei)
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "updateStatusText"
+        type, message = (
+            get_app().get_message_bus_event_stream().pop_message("updateStatusText")
         )
         assert message == {"text": "Progressing - 50%"}
 
     def test_send_update_message(self):
         self.handler.send_update_message("Some update")
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "updateMessageText"
+        type, message = (
+            get_app().get_message_bus_event_stream().pop_message("updateMessageText")
         )
         assert message == {"text": "Some update"}
 
     def test_send_update_status(self):
         self.handler.send_update_status("Some status")
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "updateStatusText"
+        type, message = (
+            get_app().get_message_bus_event_stream().pop_message("updateStatusText")
         )
         assert message == {"text": "Some status"}
 
@@ -183,8 +197,10 @@ class TestFluentMessagesHandler(TestCase):
 
     def test_on_is_instance_healthy_positive(self):
         self.handler._on_is_instance_healthy(IEvent(type="isInstanceHealthy"))
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "isInstanceHealthyResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("isInstanceHealthyResponse")
         )
         assert message == {"isHealthy": True}
 
@@ -194,7 +210,9 @@ class TestFluentMessagesHandler(TestCase):
     )
     def test_on_is_instance_healthy_negative(self, fake_connect):
         self.handler._on_is_instance_healthy(IEvent(type="isInstanceHealthy"))
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "isInstanceHealthyResponse"
+        type, message = (
+            get_app()
+            .get_message_bus_event_stream()
+            .pop_message("isInstanceHealthyResponse")
         )
         assert message == {"isHealthy": False}

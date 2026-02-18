@@ -48,8 +48,8 @@ class TestMessagesManager(TestCase):
         self.manager._on_change_solver(
             IEvent(type="changeSolver", payload={"solver": "fluent"})
         )
-        type, message = get_app().get_message_bus_event_stream().pop_message(
-            "updateMessageText"
+        type, message = (
+            get_app().get_message_bus_event_stream().pop_message("updateMessageText")
         )
         assert type == "updateMessageText"
         assert message == {"text": "Changing solver to fluent"}
