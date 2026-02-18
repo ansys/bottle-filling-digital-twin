@@ -1,7 +1,29 @@
-import { render, screen } from './utils/test-utils';
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+import { render, screen } from './utils/test-utils.tsx';
 
 // Mock the store module to avoid import.meta issues
-jest.mock('../src/store', () => ({
+jest.mock('@/store', () => ({
   store: {
     dispatch: jest.fn(),
     getState: jest.fn(() => ({})),
@@ -13,7 +35,7 @@ jest.mock('../src/store', () => ({
 }));
 
 // Mock all the problematic modules before importing the App
-jest.mock('../src/constants', () => ({
+jest.mock('@/constants', () => ({
   APP_CONFIG: {
     name: 'Bottle Filling Digital Twin',
     version: '0.0.1',
@@ -51,32 +73,32 @@ jest.mock('../src/constants', () => ({
 }));
 
 // Mock the Loading component
-jest.mock('../src/components/Loading', () => {
+jest.mock('@/components/Loading', () => {
   return function MockLoading({ message }: { message?: string }) {
     return <div data-testid='loading'>{message || 'Loading...'}</div>;
   };
 });
 
 // Mock the WorkflowPage
-jest.mock('../src/pages/WorkflowPage', () => ({
+jest.mock('@/pages/WorkflowPage', () => ({
   __esModule: true,
   default: () => <div data-testid='workflow-page'>Workflow Page</div>,
 }));
 
 // Mock the SimulationPage
-jest.mock('../src/pages/SimulationPage', () => ({
+jest.mock('@/pages/SimulationPage', () => ({
   __esModule: true,
   default: () => <div data-testid='simulation-page'>Simulation Page</div>,
 }));
 
 // Mock the ReviewerPage
-jest.mock('../src/pages/ReviewerPage', () => ({
+jest.mock('@/pages/ReviewerPage', () => ({
   __esModule: true,
   default: () => <div data-testid='reviewer-page'>Reviewer Page</div>,
 }));
 
 // Now import the App component after all mocks are set up
-import App from '../src/App';
+import App from '@/App.tsx';
 
 describe('App Component', () => {
   it('renders without crashing', async () => {

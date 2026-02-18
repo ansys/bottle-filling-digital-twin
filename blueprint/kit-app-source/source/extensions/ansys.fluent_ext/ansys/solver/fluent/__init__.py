@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -20,23 +20,49 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# install the required dependencies
-import omni.kit.pipapi
+# Explicitly add pip_prebundle to sys.path before importing
+import os
+import sys
 
-omni.kit.pipapi.install(
-    package="ansys-fluent-core",
-    version="0.32.4",
-    module="ansys.fluent.core",
-    ignore_import_check=False,
-    ignore_cache=False,
-    use_online_index=True,
-    surpress_output=False,
-    extra_args=[],
+_ext_dir = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
+_pip_prebundle = os.path.join(_ext_dir, "pip_prebundle")
+if os.path.isdir(_pip_prebundle) and _pip_prebundle not in sys.path:
+    sys.path.insert(0, _pip_prebundle)
 
-import ansys.fluent.core as pyfluent  # noqa: E402
-from ansys.fluent.core.launcher.launch_options import Precision  # noqa: E402
+# Try to import prebundled ansys-fluent-core, fall back to pip install if not available
+pyfluent = None
+try:
+    import ansys.fluent.core as pyfluent  # noqa: E402
+    from ansys.fluent.core.launcher.launch_options import Precision  # noqa: E402
 
-pyfluent.FLUENT_PRECISION_MODE = Precision.SINGLE
+    pyfluent.FLUENT_PRECISION_MODE = Precision.SINGLE
+except (ImportError, AttributeError):
+    # Prebundled package not found, try runtime pip install (for runtime only)
+    try:
+        import omni.kit.pipapi
+
+        omni.kit.pipapi.install(
+            package="ansys-fluent-core",
+            version="0.38.dev3",
+            module="ansys.fluent.core",
+            ignore_import_check=False,
+            ignore_cache=False,
+            use_online_index=True,
+            surpress_output=False,
+            extra_args=[],
+        )
+        import ansys.fluent.core as pyfluent  # noqa: E402
+        from ansys.fluent.core.launcher.launch_options import Precision  # noqa: E402
+
+        pyfluent.FLUENT_PRECISION_MODE = Precision.SINGLE
+    except Exception as e:
+        # During build/stubgen, this may fail - that's OK
+        import carb
+
+        carb.log_warn(
+            f"ansys-fluent-core not available: {e}. This is expected during build."
+        )
 
 from .extension import CreateSetupExtension  # noqa: E402, F401

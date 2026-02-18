@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * ReviewerPage Component (Refactored)
  *
@@ -6,17 +28,17 @@
 
 import React, { Component } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import type { RootState, AppDispatch } from '../../store';
-import { StreamConfig } from '../../types';
-import { setLoading, setStatusText } from '../../store/slices/simulationSlice';
-import { streamingActions } from '../../store/slices/streamingSlice';
-import { CollapsibleTab, TabContent, StatusBar } from '../../components/common';
-import { Results, SolvedCasesContent } from '../../components/simulation';
-import { useTabWorkflow, type WorkflowStep } from '../../hooks/useTabWorkflow';
-import { StreamRouter } from '../../components/streaming';
+import type { RootState, AppDispatch } from '@/store';
+import { StreamConfig } from '@/types';
+import { setLoading, setStatusText } from '@/store/slices/simulationSlice.ts';
+import { streamingActions } from '@/store/slices/streamingSlice.ts';
+import { CollapsibleTab, TabContent, StatusBar } from '@/components/common';
+import { Results, SolvedCasesContent } from '@/components/simulation';
+import { useTabWorkflow, type WorkflowStep } from '@/hooks/useTabWorkflow.ts';
+import { StreamRouter } from '@/components/streaming';
 import { AppStreamer } from '@nvidia/omniverse-webrtc-streaming-library';
-import { Header } from '../../components';
-import SessionSelectionPanel from '../../components/common/SessionSelectionPanel';
+import { Header } from '@/components';
+import SessionSelectionPanel from '@/components/common/SessionSelectionPanel';
 import './ReviewerPage.css';
 
 // Define workflow steps for reviewer
@@ -118,7 +140,11 @@ const StreamingArea = React.memo<{
           streamServer={streamConfig.stream?.streamServer || ''}
           appId={streamConfig.stream?.appId || ''}
           appVersion={streamConfig.stream?.appVersion || ''}
-          profile={streamConfig.stream?.profile || ''}
+          profile={
+            streamConfig.stream?.viewerProfile ||
+            streamConfig.stream?.profile ||
+            ''
+          }
           onSessionReady={onSessionReady}
         />
       );
@@ -176,6 +202,7 @@ const ReviewerWorkflowManager = React.forwardRef<
   {
     isLoading: boolean;
     statusText?: string | null;
+    isSessionConnected: boolean;
     onCompleteStep: (stepId: string) => void;
     formProps: ReviewerPageAllProps & {
       timestep: number;
@@ -187,128 +214,144 @@ const ReviewerWorkflowManager = React.forwardRef<
       stopAnimation: () => void;
     };
   }
->(({ isLoading, statusText, onCompleteStep, formProps }, ref) => {
-  const { tabStates, toggleTab, setTabLoading, completeStep } = useTabWorkflow({
-    steps: REVIEWER_WORKFLOW_STEPS,
-    initialOpenStep: 'solved-cases',
-    onStepCompleted: onCompleteStep,
-  });
+>(
+  (
+    { isLoading, statusText, isSessionConnected, onCompleteStep, formProps },
+    ref
+  ) => {
+    const { tabStates, toggleTab, setTabLoading, completeStep, enableTab } =
+      useTabWorkflow({
+        steps: REVIEWER_WORKFLOW_STEPS,
+        initialOpenStep: 'solved-cases',
+        onStepCompleted: onCompleteStep,
+      });
 
-  // Monitor for solved case loading states
-  React.useEffect(() => {
-    REVIEWER_WORKFLOW_STEPS.forEach(step => {
-      const shouldBeLoading = isLoading && step.id === 'solved-cases';
-      setTabLoading(step.id, shouldBeLoading, statusText || undefined);
-    });
-  }, [isLoading, statusText, setTabLoading]);
+    // Enable solved-cases tab when session is connected
+    React.useEffect(() => {
+      if (isSessionConnected && !tabStates['solved-cases']?.isEnabled) {
+        console.log(
+          'ReviewerWorkflowManager: Session connected, enabling solved-cases tab'
+        );
+        enableTab('solved-cases');
+      }
+    }, [isSessionConnected, tabStates, enableTab]);
 
-  // Monitor Redux state changes to determine when steps are completed
-  React.useEffect(() => {
-    // Solved Cases completed when case is loaded successfully (loading ends with success message)
-    if (
-      !isLoading &&
-      statusText === 'Solved case loaded successfully' &&
-      !tabStates['solved-cases']?.isCompleted
-    ) {
-      completeStep('solved-cases');
-      onCompleteStep('solved-cases');
-    }
-  }, [isLoading, statusText, tabStates, completeStep, onCompleteStep]);
+    // Monitor for solved case loading states
+    React.useEffect(() => {
+      REVIEWER_WORKFLOW_STEPS.forEach(step => {
+        const shouldBeLoading = isLoading && step.id === 'solved-cases';
+        setTabLoading(step.id, shouldBeLoading, statusText || undefined);
+      });
+    }, [isLoading, statusText, setTabLoading]);
 
-  // Function to complete solved-cases step (called by parent)
-  const completeSolvedCasesStep = React.useCallback(() => {
-    if (!tabStates['solved-cases']?.isCompleted) {
-      completeStep('solved-cases');
-      onCompleteStep('solved-cases');
-    }
-  }, [tabStates, completeStep, onCompleteStep]);
+    // Monitor Redux state changes to determine when steps are completed
+    React.useEffect(() => {
+      // Solved Cases completed when case is loaded successfully (loading ends with success message)
+      if (
+        !isLoading &&
+        statusText === 'Solved case loaded successfully' &&
+        !tabStates['solved-cases']?.isCompleted
+      ) {
+        completeStep('solved-cases');
+        onCompleteStep('solved-cases');
+      }
+    }, [isLoading, statusText, tabStates, completeStep, onCompleteStep]);
 
-  // Expose the function to parent via ref
-  React.useImperativeHandle(
-    ref,
-    () => ({
-      completeSolvedCasesStep,
-    }),
-    [completeSolvedCasesStep]
-  );
+    // Function to complete solved-cases step (called by parent)
+    const completeSolvedCasesStep = React.useCallback(() => {
+      if (!tabStates['solved-cases']?.isCompleted) {
+        completeStep('solved-cases');
+        onCompleteStep('solved-cases');
+      }
+    }, [tabStates, completeStep, onCompleteStep]);
 
-  return (
-    <div className='workflow-tabs'>
-      <CollapsibleTab
-        title='Solved Cases'
-        stepNumber={1}
-        isOpen={tabStates['solved-cases']?.isOpen || false}
-        isEnabled={tabStates['solved-cases']?.isEnabled || false}
-        isLoading={tabStates['solved-cases']?.isLoading || false}
-        statusText={tabStates['solved-cases']?.statusText}
-        onToggle={() => toggleTab('solved-cases')}
-        className={tabStates['solved-cases']?.isCompleted ? 'completed' : ''}
-      >
-        <TabContent>
-          <SolvedCasesContent
-            width={400}
-            onStepCompleted={completeSolvedCasesStep}
-            onVisualize={(caseValue: string) => {
-              console.log('Visualizing case:', caseValue);
+    // Expose the function to parent via ref
+    React.useImperativeHandle(
+      ref,
+      () => ({
+        completeSolvedCasesStep,
+      }),
+      [completeSolvedCasesStep]
+    );
 
-              formProps.setLoading?.(true);
-              formProps.setStatusText?.('Loading solved case...');
+    return (
+      <div className='workflow-tabs'>
+        <CollapsibleTab
+          title='Solved Cases'
+          stepNumber={1}
+          isOpen={tabStates['solved-cases']?.isOpen || false}
+          isEnabled={tabStates['solved-cases']?.isEnabled || false}
+          isLoading={tabStates['solved-cases']?.isLoading || false}
+          statusText={tabStates['solved-cases']?.statusText}
+          onToggle={() => toggleTab('solved-cases')}
+          className={tabStates['solved-cases']?.isCompleted ? 'completed' : ''}
+        >
+          <TabContent>
+            <SolvedCasesContent
+              width={400}
+              onStepCompleted={completeSolvedCasesStep}
+              onVisualize={(caseValue: string) => {
+                console.log('Visualizing case:', caseValue);
 
-              try {
-                const message = {
-                  event_type: 'openSolvedCase',
-                  payload: {
-                    usdFile: caseValue,
-                  },
-                };
+                formProps.setLoading?.(true);
+                formProps.setStatusText?.('Loading solved case...');
 
-                AppStreamer.sendMessage(JSON.stringify(message));
-                console.log(
-                  'Sent openSolvedCase message to Omniverse:',
-                  message
-                );
-              } catch (error) {
-                console.error('Error visualizing solved case:', error);
-                formProps.setLoading?.(false);
-                formProps.setStatusText?.('Failed to load solved case');
-              }
-            }}
-          />
-        </TabContent>
-      </CollapsibleTab>
+                try {
+                  const message = {
+                    event_type: 'openSolvedCase',
+                    payload: {
+                      usdFile: caseValue,
+                    },
+                  };
 
-      <CollapsibleTab
-        title='Results Visualization'
-        stepNumber={2}
-        isOpen={tabStates['results']?.isOpen || false}
-        isEnabled={tabStates['results']?.isEnabled || false}
-        isLoading={tabStates['results']?.isLoading || false}
-        statusText={tabStates['results']?.statusText}
-        onToggle={() => toggleTab('results')}
-        className={tabStates['results']?.isCompleted ? 'completed' : ''}
-      >
-        <TabContent>
-          <Results
-            width={400}
-            showStoreButton={false}
-            timestep={formProps.timestep || 0}
-            isFullscreen={formProps.isFullscreen || false}
-            isPlaying={formProps.isPlaying || false}
-            onTimestepChange={formProps.setTimestep}
-            onFullscreenChange={formProps.setFullscreen}
-            onPlayStateChange={(isPlaying: boolean) => {
-              if (isPlaying) {
-                formProps.startAnimation?.();
-              } else {
-                formProps.stopAnimation?.();
-              }
-            }}
-          />
-        </TabContent>
-      </CollapsibleTab>
-    </div>
-  );
-});
+                  AppStreamer.sendMessage(JSON.stringify(message));
+                  console.log(
+                    'Sent openSolvedCase message to Omniverse:',
+                    message
+                  );
+                } catch (error) {
+                  console.error('Error visualizing solved case:', error);
+                  formProps.setLoading?.(false);
+                  formProps.setStatusText?.('Failed to load solved case');
+                }
+              }}
+            />
+          </TabContent>
+        </CollapsibleTab>
+
+        <CollapsibleTab
+          title='Results Visualization'
+          stepNumber={2}
+          isOpen={tabStates['results']?.isOpen || false}
+          isEnabled={true}
+          isLoading={tabStates['results']?.isLoading || false}
+          statusText={tabStates['results']?.statusText}
+          onToggle={() => toggleTab('results')}
+          className={tabStates['results']?.isCompleted ? 'completed' : ''}
+        >
+          <TabContent>
+            <Results
+              width={400}
+              showStoreButton={false}
+              timestep={formProps.timestep || 0}
+              isFullscreen={formProps.isFullscreen || false}
+              isPlaying={formProps.isPlaying || false}
+              onTimestepChange={formProps.setTimestep}
+              onFullscreenChange={formProps.setFullscreen}
+              onPlayStateChange={(isPlaying: boolean) => {
+                if (isPlaying) {
+                  formProps.startAnimation?.();
+                } else {
+                  formProps.stopAnimation?.();
+                }
+              }}
+            />
+          </TabContent>
+        </CollapsibleTab>
+      </div>
+    );
+  }
+);
 
 // Component state interface
 interface ReviewerPageState {
@@ -321,6 +364,7 @@ interface ReviewerPageState {
   configError: string | null;
   sessionId: string | null;
   showSessionPanel: boolean;
+  isSessionConnected: boolean;
 }
 
 /**
@@ -345,6 +389,7 @@ class ReviewerPage extends Component<ReviewerPageAllProps, ReviewerPageState> {
       configError: null,
       sessionId: null,
       showSessionPanel: false,
+      isSessionConnected: false,
     };
   }
 
@@ -451,6 +496,7 @@ class ReviewerPage extends Component<ReviewerPageAllProps, ReviewerPageState> {
     this.setState({
       sessionId,
       showSessionPanel: false,
+      isSessionConnected: true,
     });
   };
 
@@ -470,7 +516,11 @@ class ReviewerPage extends Component<ReviewerPageAllProps, ReviewerPageState> {
       console.log('ReviewerPage: Ending stream via status bar button');
       this.endStreamFn();
       // Clear the sessionId and show session panel to allow reconnecting
-      this.setState({ sessionId: null, showSessionPanel: true });
+      this.setState({
+        sessionId: null,
+        showSessionPanel: true,
+        isSessionConnected: false,
+      });
     } else {
       console.warn('ReviewerPage: End stream function not available');
     }
@@ -486,7 +536,11 @@ class ReviewerPage extends Component<ReviewerPageAllProps, ReviewerPageState> {
     // Reset streaming state in Redux to clear any stale connection data
     this.props.resetStreamingState();
     // Clear the sessionId and show session panel to allow reconnecting
-    this.setState({ sessionId: null, showSessionPanel: true });
+    this.setState({
+      sessionId: null,
+      showSessionPanel: true,
+      isSessionConnected: false,
+    });
   };
 
   /**
@@ -601,6 +655,7 @@ class ReviewerPage extends Component<ReviewerPageAllProps, ReviewerPageState> {
       configError,
       sessionId,
       showSessionPanel,
+      isSessionConnected,
     } = this.state;
 
     return (
@@ -651,6 +706,7 @@ class ReviewerPage extends Component<ReviewerPageAllProps, ReviewerPageState> {
             <ReviewerWorkflowManager
               ref={this.workflowManagerRef}
               {...workflowProps}
+              isSessionConnected={isSessionConnected}
               onCompleteStep={this.handleStepCompleted}
               formProps={{
                 ...this.props,

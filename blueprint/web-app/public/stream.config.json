@@ -1,13 +1,14 @@
 {
   "$comment": "Omniverse streaming configuration - source can be 'gfn', 'local' or 'stream'",
-  "source": "local",
+  "source": "stream",
   "stream": {
     "$comment": "Required props if source is set to 'stream'. Mocked at localhost:3004",
     "appServer": "<YOUR_APP_SERVER>",
     "streamServer": "<YOUR_STREAM_SERVER>",
     "appId": "bottle-filling-twin",
-    "appVersion": "1.0.0",
-    "profile": "bottle-filling-twin-default"
+    "appVersion": "1.0.3",
+    "profile": "bottle-filling-twin-default",
+    "viewerProfile": "bottle-filling-twin-viewer-default"
   },
   "gfn": {
     "$comment": "Required props if source is set to 'gfn'.",
@@ -17,7 +18,7 @@
   },
   "local": {
     "$comment": "Required props if source is set to 'local'.",
-    "server": "<YOUR_LOCAL_SERVER>",
+    "server": "127.0.0.1",
     "signalingPort": 49100,
     "mediaPort": 1024
   }

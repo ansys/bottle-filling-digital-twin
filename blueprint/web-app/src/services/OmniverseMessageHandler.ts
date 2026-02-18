@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * Omniverse Message Handler Service
  *
@@ -5,7 +27,7 @@
  * Decouples message processing logic from UI components
  */
 
-import { AppDispatch } from '../store';
+import { AppDispatch } from '@/store';
 import {
   setSelectedDesignFile,
   updateSimulationProgress,
@@ -16,7 +38,10 @@ import {
   setLoading,
   setStatusText,
   setStoredResults,
-} from '../store/slices/simulationSlice';
+  setKitAppReady,
+  setRtxStatus,
+  setModelLoadProgress,
+} from '@/store/slices/simulationSlice.ts';
 
 export interface OmniverseEventPayload {
   result?: string;
@@ -27,6 +52,12 @@ export interface OmniverseEventPayload {
   text?: string;
   storedResults?: string | string[];
   isHealthy?: boolean;
+  // Kit-app status tracking (for e2e tests)
+  ready?: boolean;
+  solver?: string;
+  rtxEnabled?: boolean;
+  rt2Enabled?: boolean;
+  stage?: string;
 }
 
 export interface OmniverseCustomEvent {
@@ -110,6 +141,19 @@ export class OmniverseMessageHandler {
 
         case 'isInstanceHealthyResponse':
           this.handleInstanceHealthyResponse(eventData.payload);
+          break;
+
+        // Kit-app status tracking (for e2e tests)
+        case 'kitAppReadyResponse':
+          this.handleKitAppReady(eventData.payload);
+          break;
+
+        case 'rtxStatusResponse':
+          this.handleRtxStatus(eventData.payload);
+          break;
+
+        case 'modelLoadProgressResponse':
+          this.handleModelLoadProgress(eventData.payload);
           break;
 
         case 'error':
@@ -265,8 +309,6 @@ export class OmniverseMessageHandler {
       this.dispatch(setLoading(false));
     } else {
       console.log('OmniverseMessageHandler: Fluent instance healthy');
-      // Don't set canRun here - it should only be set after user completes initial conditions
-      // Just clear any previous errors and confirm system is ready
       this.dispatch(setLoading(false));
       this.dispatch(setError(null));
       this.dispatch(setSimulationStatus('idle'));
@@ -277,5 +319,24 @@ export class OmniverseMessageHandler {
     if (payload.error) {
       this.dispatch(setError(payload.error));
     }
+  }
+
+  // Kit-app status tracking handlers (for e2e tests)
+  private handleKitAppReady(payload: OmniverseEventPayload): void {
+    if (payload.ready) {
+      this.dispatch(setKitAppReady(true));
+    }
+  }
+
+  private handleRtxStatus(payload: OmniverseEventPayload): void {
+    const rtxEnabled = payload.rtxEnabled ?? false;
+    const rt2Enabled = payload.rt2Enabled ?? false;
+    this.dispatch(setRtxStatus({ rtxEnabled, rt2Enabled }));
+  }
+
+  private handleModelLoadProgress(payload: OmniverseEventPayload): void {
+    const stage = payload.stage ?? 'unknown';
+    const progress = payload.progress ?? 0;
+    this.dispatch(setModelLoadProgress({ stage, progress }));
   }
 }

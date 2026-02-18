@@ -1,9 +1,31 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from 'react';
 import { render, waitFor } from '@testing-library/react';
-import { useOKASSession, OKASSessionParams } from '../../src/store/hooks/useOKASSession';
+import { useOKASSession, OKASSessionParams } from '@/store/hooks/useOKASSession.ts';
 
-jest.mock('../../src/services/Endpoints', () => ({
+jest.mock('@/services/Endpoints.tsx', () => ({
   createStreamingSession: jest.fn(),
   getStreamingSessionInfo: jest.fn(),
   destroyStreamingSession: jest.fn(),
@@ -12,7 +34,7 @@ jest.mock('../../src/services/Endpoints', () => ({
 import {
   createStreamingSession,
   getStreamingSessionInfo,
-} from '../../src/services/Endpoints';
+} from '@/services/Endpoints.tsx';
 
 function HookHarness(props: { params: OKASSessionParams; onReady: (h: ReturnType<typeof useOKASSession>) => void }) {
   const hook = useOKASSession(props.params);
@@ -152,16 +174,16 @@ describe('useOKASSession hook', () => {
   });
 });
 import { renderHook, act } from '@testing-library/react';
-import type { StreamItem } from '../../src/services/Endpoints';
+import type { StreamItem } from '@/services/Endpoints.tsx';
 
 // Mock Endpoints used by the hook
-jest.mock('../../src/services/Endpoints', () => ({
+jest.mock('@/services/Endpoints.tsx', () => ({
   createStreamingSession: jest.fn(),
   getStreamingSessionInfo: jest.fn(),
   destroyStreamingSession: jest.fn(),
 }));
 
-import * as Endpoints from '../../src/services/Endpoints';
+import * as Endpoints from '@/services/Endpoints.tsx';
 
 describe('useOKASSession hook', () => {
   const params: OKASSessionParams = {

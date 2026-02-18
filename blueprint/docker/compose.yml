@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -29,7 +29,7 @@ volumes:
 services:
 
   fluent-v25:
-    image: ghcr.io/ansys/pyfluent:v25.2.0
+    image: fluent:v25.2.0
     command: 3d -gpu -t1 -g -sifile=/home/workdir/serverinfo.txt
     working_dir: /home/workdir
     volumes:
@@ -53,7 +53,7 @@ services:
               capabilities: [gpu]
 
   kit-app:
-    image: ghcr.io/ansys/bottle-filling-digital-twin/kit-app:latest
+    image: kit-app:latest
     environment:
       - TEMP=/tmp/workdir
       - FLUENT_HOST=fluent-v25
@@ -96,10 +96,10 @@ services:
       - 8111:8111/tcp
       - 49100:49100/tcp
       - 1024:1024/udp
-  #   network_mode: "host"
+      # network_mode: "host"
 
   web-app:
-    image: ghcr.io/ansys/bottle-filling-digital-twin/web-app:latest
+    image: web-app:latest
     build:
       context: ../web-app
       dockerfile: ../docker/Dockerfile.web-app

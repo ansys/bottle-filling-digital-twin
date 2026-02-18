@@ -10,4 +10,7 @@ version = "0.8.0"  # Semantic Versionning is used: https://semver.org/
 "omni.cae.data" = {}
 
 [[python.module]]
+path = "pip_prebundle"
+
+[[python.module]]
 name = "ansys.solver.fluent"

@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * WorkflowPage Component Tests (Forms.APP_ONLY cases)
  *
@@ -17,7 +39,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
 import '@testing-library/jest-dom';
 
-import WorkflowPage from '../../src/pages/WorkflowPage';
+import WorkflowPage from '@/pages/WorkflowPage';
 import {
   Forms,
   StreamStatus,
@@ -28,15 +50,15 @@ import {
   setLoadingVersions,
   setLoadingProfiles,
   setError,
-} from '../../src/store/slices/applicationSlice';
-import applicationReducer from '../../src/store/slices/applicationSlice';
-import streamingReducer from '../../src/store/slices/streamingSlice';
-import uiReducer from '../../src/store/slices/uiSlice';
-import serverReducer from '../../src/store/slices/serverSlice';
-import formReducer from '../../src/store/slices/formSlice';
+} from '@/store/slices/applicationSlice.ts';
+import applicationReducer from '@/store/slices/applicationSlice.ts';
+import streamingReducer from '@/store/slices/streamingSlice.ts';
+import uiReducer from '@/store/slices/uiSlice.ts';
+import serverReducer from '@/store/slices/serverSlice.ts';
+import formReducer from '@/store/slices/formSlice.ts';
 
 // Mock the constants to avoid import.meta.env issues
-jest.mock('../../src/constants', () => ({
+jest.mock('@/constants', () => ({
   ROUTES: {
     WORKFLOW: '/workflow',
     SIMULATION: '/simulation',
@@ -65,7 +87,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock ErrorBoundary to avoid import.meta.env issues
-jest.mock('../../src/components/ErrorBoundary', () => ({
+jest.mock('@/components/ErrorBoundary', () => ({
   __esModule: true,
   default: ({
     children,

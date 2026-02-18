@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * SolverSetup Container
  *
@@ -8,15 +30,15 @@
 import { Component } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { AppStreamer } from '@nvidia/omniverse-webrtc-streaming-library';
-import type { RootState, AppDispatch } from '../../../store';
+import type { RootState, AppDispatch } from '@/store';
 import {
   setSelectedDesignFile,
   setSelectedResolution,
   setError,
   setLoading,
   setSimulationStatus,
-} from '../../../store/slices/simulationSlice';
-import SolverSetup, { type DesignFile } from './SolverSetup';
+} from '@/store/slices/simulationSlice.ts';
+import SolverSetup, { type DesignFile } from './SolverSetup.tsx';
 
 // Map Redux state to component props
 export const mapStateToProps = (state: RootState) => ({
@@ -201,7 +223,7 @@ export class SolverSetupContainer extends Component<SolverSetupContainerAllProps
           console.error('[SolverSetupContainer] Health check failed:', error);
         }
       }
-    }, 1000); // 1 second delay to allow stream initialization
+    }, 5000); // 5 second delay to ensure WebRTC data channel is fully ready
   };
 
   /**

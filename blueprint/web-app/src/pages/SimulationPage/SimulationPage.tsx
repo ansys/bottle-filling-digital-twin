@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * SimulationPage Component (Refactored)
  *
@@ -11,23 +33,23 @@
 
 import React, { Component } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
-import type { RootState, AppDispatch } from '../../store';
-import { StreamConfig } from '../../types';
+import type { RootState, AppDispatch } from '@/store';
+import { StreamConfig } from '@/types';
 import {
   setSimulationStatus,
   setLoading,
-} from '../../store/slices/simulationSlice';
-import { streamingActions } from '../../store/slices/streamingSlice';
+} from '@/store/slices/simulationSlice.ts';
+import { streamingActions } from '@/store/slices/streamingSlice.ts';
 
-import { CollapsibleTab, TabContent, StatusBar } from '../../components/common';
-import { useTabWorkflow, type WorkflowStep } from '../../hooks/useTabWorkflow';
-import SolverSetupContainer from '../../components/simulation/SolverSetup/SolverSetupContainer';
-import FluentSolutionVariablesContainer from '../../components/simulation/FluentSolutionVariables/FluentSolutionVariablesContainer';
-import FluentCalculationsContainer from '../../components/simulation/FluentCalculations/FluentCalculationsContainer';
-import { ResultsContent } from '../../components/simulation';
-import { StreamRouter } from '../../components/streaming';
-import { Header } from '../../components';
-import SessionSelectionPanel from '../../components/common/SessionSelectionPanel';
+import { CollapsibleTab, TabContent, StatusBar } from '@/components/common';
+import { useTabWorkflow, type WorkflowStep } from '@/hooks/useTabWorkflow.ts';
+import SolverSetupContainer from '@/components/simulation/SolverSetup/SolverSetupContainer.tsx';
+import FluentSolutionVariablesContainer from '@/components/simulation/FluentSolutionVariables/FluentSolutionVariablesContainer.tsx';
+import FluentCalculationsContainer from '@/components/simulation/FluentCalculations/FluentCalculationsContainer.tsx';
+import { ResultsContent } from '@/components/simulation';
+import { StreamRouter } from '@/components/streaming';
+import { Header } from '@/components';
+import SessionSelectionPanel from '@/components/common/SessionSelectionPanel';
 import styles from './SimulationPage.module.css';
 
 // Define workflow steps
@@ -69,6 +91,10 @@ const mapStateToProps = (state: RootState) => ({
   statusText: state.simulation.statusText,
   canRun: state.simulation.canRun,
   canInitialize: state.simulation.canInitialize,
+  // Kit-app status tracking (for e2e tests)
+  kitAppReady: state.simulation.kitAppReady,
+  rtxStatus: state.simulation.rtxStatus,
+  modelLoadProgress: state.simulation.modelLoadProgress,
 });
 
 // Map dispatch to props
@@ -102,6 +128,7 @@ interface SimulationPageState {
   configError: string | null;
   sessionId: string | null;
   showSessionPanel: boolean;
+  isSessionConnected: boolean;
 }
 
 /**
@@ -219,6 +246,7 @@ const TabWorkflowManager: React.FC<{
   simulationStatus: string;
   isLoading: boolean;
   statusText?: string | null;
+  isSessionConnected: boolean;
   onCompleteStep: (stepId: string) => void;
 }> = ({
   canRun,
@@ -226,6 +254,7 @@ const TabWorkflowManager: React.FC<{
   simulationStatus,
   isLoading,
   statusText,
+  isSessionConnected,
   onCompleteStep,
 }) => {
   const { tabStates, toggleTab, setTabLoading, completeStep, enableTab } =
@@ -234,6 +263,15 @@ const TabWorkflowManager: React.FC<{
       initialOpenStep: 'solver-setup',
       onStepCompleted: onCompleteStep,
     });
+
+  // Enable solver-setup tab when session is connected
+  // Note: Only depends on isSessionConnected to avoid infinite re-renders
+  React.useEffect(() => {
+    if (isSessionConnected) {
+      enableTab('solver-setup');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSessionConnected]);
 
   // Monitor Redux state changes to determine when steps are completed
   React.useEffect(() => {
@@ -361,7 +399,7 @@ const TabWorkflowManager: React.FC<{
         title='Results & Visualization'
         stepNumber={4}
         isOpen={tabStates['results']?.isOpen || false}
-        isEnabled={tabStates['results']?.isEnabled || false}
+        isEnabled={true}
         isLoading={tabStates['results']?.isLoading || false}
         statusText={tabStates['results']?.statusText}
         onToggle={() => toggleTab('results')}
@@ -399,6 +437,7 @@ class SimulationPageBase extends Component<
       configError: null,
       sessionId: null,
       showSessionPanel: false,
+      isSessionConnected: false,
     };
   }
 
@@ -415,6 +454,7 @@ class SimulationPageBase extends Component<
     this.setState({
       sessionId,
       showSessionPanel: false,
+      isSessionConnected: true,
     });
   };
 
@@ -434,7 +474,11 @@ class SimulationPageBase extends Component<
       console.log('SimulationPage: Ending stream via status bar button');
       this.endStreamFn();
       // Clear the sessionId and show session panel to allow reconnecting
-      this.setState({ sessionId: null, showSessionPanel: true });
+      this.setState({
+        sessionId: null,
+        showSessionPanel: true,
+        isSessionConnected: false,
+      });
     } else {
       console.warn('SimulationPage: End stream function not available');
     }
@@ -450,7 +494,11 @@ class SimulationPageBase extends Component<
     // Reset streaming state in Redux to clear any stale connection data
     this.props.resetStreamingState();
     // Clear the sessionId and show session panel to allow reconnecting
-    this.setState({ sessionId: null, showSessionPanel: true });
+    this.setState({
+      sessionId: null,
+      showSessionPanel: true,
+      isSessionConnected: false,
+    });
   };
 
   async loadStreamConfig(
@@ -611,13 +659,21 @@ class SimulationPageBase extends Component<
   }
 
   render(): React.ReactNode {
-    const { error, className, ...workflowProps } = this.props;
+    const {
+      error,
+      className,
+      kitAppReady,
+      rtxStatus,
+      modelLoadProgress,
+      ...workflowProps
+    } = this.props;
     const {
       streamConfig,
       configLoading,
       configError,
       sessionId,
       showSessionPanel,
+      isSessionConnected,
     } = this.state;
 
     return (
@@ -627,6 +683,16 @@ class SimulationPageBase extends Component<
           onSettingsClick={this.handleSettingsClick}
           onHelpClick={this.handleHelpClick}
           onProfileClick={this.handleProfileClick}
+        />
+
+        {/* Hidden status element for e2e tests */}
+        <div
+          data-testid='kit-app-status'
+          data-kit-ready={kitAppReady}
+          data-rtx-enabled={rtxStatus?.rtxEnabled ?? false}
+          data-model-stage={modelLoadProgress?.stage ?? ''}
+          data-model-progress={modelLoadProgress?.progress ?? 0}
+          style={{ display: 'none' }}
         />
 
         {/* Error Banner */}
@@ -667,6 +733,7 @@ class SimulationPageBase extends Component<
           <div className={styles.sidebarContent}>
             <TabWorkflowManager
               {...workflowProps}
+              isSessionConnected={isSessionConnected}
               onCompleteStep={this.handleStepCompleted}
             />
           </div>

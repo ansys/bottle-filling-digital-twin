@@ -1,0 +1,286 @@
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+{{- if .Values.kitApp.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "kit-app-%s" (include "bottle-filling-twin.fullname" .) | trunc 63 | trimSuffix "-" }}
+  namespace: {{ include "bottle-filling-twin.namespace" . }}
+  labels:
+    app: {{ (printf "%s-kit-%s" (include "bottle-filling-twin.name" .) (default .Release.Name .Values.streamingKit.sessionId)) | trunc 63 | trimSuffix "-" }}
+    component: kit-app
+    sessionId: {{ .Values.streamingKit.sessionId }}
+    {{- include "bottle-filling-twin.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ (printf "%s-kit-%s" (include "bottle-filling-twin.name" .) (default .Release.Name .Values.streamingKit.sessionId)) | trunc 63 | trimSuffix "-" }}
+      component: kit-app
+  template:
+    metadata:
+      {{- with .Values.pod.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ (printf "%s-kit-%s" (include "bottle-filling-twin.name" .) (default .Release.Name .Values.streamingKit.sessionId)) | trunc 63 | trimSuffix "-" }}
+        component: kit-app
+        sessionId: {{ .Values.streamingKit.sessionId }}
+        {{- include "bottle-filling-twin.labels" . | nindent 8 }}
+        {{- with .Values.pod.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "bottle-filling-twin.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "bottle-filling-twin.serviceAccountName" . }}
+      {{- end }}
+      containers:
+        # Kit-app container
+        - name: kit-app
+          image: "{{ .Values.kitApp.image.repository }}:{{ .Values.kitApp.image.tag }}"
+          imagePullPolicy: {{ .Values.kitApp.image.pullPolicy }}
+          ports:
+            - name: signaling
+              containerPort: {{ .Values.kitApp.ports.signaling }}
+              protocol: TCP
+            - name: media
+              containerPort: {{ .Values.kitApp.ports.media }}
+              protocol: UDP
+            - name: http
+              containerPort: {{ .Values.kitApp.ports.http }}
+              protocol: TCP
+          env:
+            - name: TEMP
+              value: {{ .Values.kitApp.workdirPath | quote }}
+            # Connect to Fluent via Service DNS name
+            - name: FLUENT_HOST
+              value: {{ printf "fluent-%s" (include "bottle-filling-twin.fullname" .) | trunc 63 | trimSuffix "-" }}.{{ include "bottle-filling-twin.namespace" . }}.svc.cluster.local
+            - name: FLUENT_PORT
+              value: {{ .Values.fluent.port | quote }}
+            - name: VISCOSITY
+              value: {{ .Values.fluent.simulation.viscosity | quote }}
+            - name: BOTTLES_PER_HOUR
+              value: {{ .Values.fluent.simulation.bottlesPerHour | quote }}
+            - name: FILLING_HEIGHT
+              value: {{ .Values.fluent.simulation.fillingHeight | quote }}
+            - name: TIMESTEP_SIZE
+              value: {{ .Values.fluent.simulation.timestepSize | quote }}
+            - name: BOTTLE_UNITS_1
+              value: {{ .Values.fluent.simulation.bottleUnits1 | quote }}
+            - name: BOTTLE_UNITS_2
+              value: {{ .Values.fluent.simulation.bottleUnits2 | quote }}
+            - name: BOTTLE_UNITS_3
+              value: {{ .Values.fluent.simulation.bottleUnits3 | quote }}
+            - name: FIRST_ITERATION_TIMESTEPS
+              value: {{ .Values.fluent.simulation.firstIterationTimesteps | quote }}
+            - name: CONTENT_PATH
+              value: "{{ .Values.kitApp.contentPath }}/"
+            - name: OM_KIT_VERBOSE
+              value: {{ .Values.kitApp.env.omKitVerbose | quote }}
+            - name: NVDA_KIT_ARGS
+              value: {{ .Values.kitApp.env.nvdaKitArgs | quote }}
+            - name: NVDA_KIT_NUCLEUS
+              value: {{ .Values.kitApp.env.nvdaKitNucleus | quote }}
+            {{- include "bottle-filling-twin.gpuEnv" . | nindent 12 }}
+          volumeMounts:
+            # Mount shared workdir to read serverinfo.txt from Fluent
+            {{- if .Values.storage.fluentWorkdir.enabled }}
+            - name: fluent-workdir
+              mountPath: {{ .Values.kitApp.workdirPath }}
+              {{- if and .Values.storage.fluentWorkdir.useSessionSubPath .Values.streamingKit.sessionId }}
+              subPath: {{ .Values.streamingKit.sessionId }}
+              {{- end }}
+              readOnly: true
+            {{- end }}
+            {{- if .Values.storage.contentData.enabled }}
+            - name: content-data
+              mountPath: {{ .Values.kitApp.contentPath }}
+              # Kit-app needs write access to generate journal files (Init.jou, FullRun.jou) from templates
+              {{- if .Values.storage.contentData.readOnly }}
+              readOnly: true
+              {{- else }}
+              readOnly: false
+              {{- end }}
+            {{- end }}
+            {{- if .Values.storage.omniverseCache.enabled }}
+            - name: omniverse-cache
+              mountPath: /home/ubuntu/.cache
+              # Shared cache across all sessions for faster loading
+            {{- end }}
+          resources:
+            requests:
+              memory: {{ .Values.kitApp.resources.requests.memory | quote }}
+              cpu: {{ .Values.kitApp.resources.requests.cpu | quote }}
+              nvidia.com/gpu: "1"
+            limits:
+              memory: {{ .Values.kitApp.resources.limits.memory | quote }}
+              cpu: {{ .Values.kitApp.resources.limits.cpu | quote }}
+              nvidia.com/gpu: "1"
+          securityContext:
+            {{- toYaml .Values.kitApp.securityContext | nindent 12 }}
+
+        {{- if .Values.envoy.enabled }}
+        # Envoy sidecar for connection management and health checks
+        - name: envoy-sidecar
+          image: "{{ .Values.envoy.image.repository }}:{{ .Values.envoy.image.tag }}"
+          imagePullPolicy: {{ .Values.envoy.image.pullPolicy }}
+          args: ["-c", "/etc/envoy/envoy.yaml"]
+          ports:
+            - name: signaling-proxy
+              containerPort: {{ .Values.envoy.proxyPort }}
+              protocol: TCP
+            - name: health
+              containerPort: {{ .Values.envoy.healthPort }}
+              protocol: TCP
+          volumeMounts:
+            - name: envoy-config
+              mountPath: /etc/envoy
+          {{- if .Values.envoy.livenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.envoy.livenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.envoy.readinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.envoy.readinessProbe | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.envoy.resources | nindent 12 }}
+        {{- end }}
+
+      volumes:
+        {{- if .Values.envoy.enabled }}
+        - name: envoy-config
+          configMap:
+            name: {{ include "bottle-filling-twin.envoyConfigMapName" . }}
+        {{- end }}
+        {{- if .Values.storage.fluentWorkdir.enabled }}
+        - name: fluent-workdir
+          {{- if eq .Values.storage.fluentWorkdir.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.fluentWorkdir" . }}
+          {{- else if eq .Values.storage.fluentWorkdir.type "azureFile" }}
+          azureFile:
+            secretName: {{ .Values.storage.fluentWorkdir.azureFile.secretName }}
+            shareName: {{ .Values.storage.fluentWorkdir.azureFile.shareName }}
+            readOnly: true  # Kit-app only needs to read serverinfo.txt from Fluent
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.fluentWorkdir.sizeLimit }}
+            sizeLimit: {{ .Values.storage.fluentWorkdir.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.storage.contentData.enabled }}
+        - name: content-data
+          {{- if eq .Values.storage.contentData.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.contentData" . }}
+            {{- if .Values.storage.contentData.readOnly }}
+            readOnly: true
+            {{- end }}
+          {{- else if eq .Values.storage.contentData.type "azureFile" }}
+          azureFile:
+            secretName: {{ .Values.storage.contentData.azureFile.secretName }}
+            shareName: {{ .Values.storage.contentData.azureFile.shareName }}
+            {{- if .Values.storage.contentData.azureFile.readOnly }}
+            readOnly: {{ .Values.storage.contentData.azureFile.readOnly }}
+            {{- else }}
+            readOnly: false
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.contentData.sizeLimit }}
+            sizeLimit: {{ .Values.storage.contentData.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.storage.omniverseCache.enabled }}
+        - name: omniverse-cache
+          {{- if eq .Values.storage.omniverseCache.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.omniverseCache" . }}
+            {{- if .Values.storage.omniverseCache.readOnly }}
+            readOnly: true
+            {{- end }}
+          {{- else if eq .Values.storage.omniverseCache.type "azureFile" }}
+          azureFile:
+            secretName: {{ .Values.storage.omniverseCache.azureFile.secretName }}
+            shareName: {{ .Values.storage.omniverseCache.azureFile.shareName }}
+            {{- if .Values.storage.omniverseCache.azureFile.readOnly }}
+            readOnly: {{ .Values.storage.omniverseCache.azureFile.readOnly }}
+            {{- else }}
+            readOnly: false
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.omniverseCache.sizeLimit }}
+            sizeLimit: {{ .Values.storage.omniverseCache.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
+      # Node pool selection for Kit-app (gpupool)
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: agentpool
+                    operator: In
+                    values:
+                      - {{ .Values.kitApp.nodePool | default "gpupool" }}
+        {{- if .Values.podAntiAffinity.enabled }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - {{ include "bottle-filling-twin.name" . }}
+              topologyKey: "kubernetes.io/hostname"
+        {{- end }}
+      {{- if .Values.kitApp.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.kitApp.nodeSelector | nindent 8 }}
+      {{- end }}
+
+      {{- if or .Values.pod.tolerations .Values.kitApp.tolerations }}
+      tolerations:
+        {{- if .Values.pod.tolerations }}
+        {{- toYaml .Values.pod.tolerations | nindent 8 }}
+        {{- end }}
+        {{- if .Values.kitApp.tolerations }}
+        {{- toYaml .Values.kitApp.tolerations | nindent 8 }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.pod.priorityClassName }}
+      priorityClassName: {{ .Values.pod.priorityClassName }}
+      {{- end }}
+{{- end }}
