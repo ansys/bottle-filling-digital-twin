@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 /**
  * Redux Store Configuration
  *
@@ -8,15 +30,15 @@ import { configureStore } from '@reduxjs/toolkit';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 // Import all slice reducers
-import applicationReducer from './slices/applicationSlice';
-import streamingReducer from './slices/streamingSlice';
-import uiReducer from './slices/uiSlice';
-import formReducer from './slices/formSlice';
-import serverReducer from './slices/serverSlice';
-import simulationReducer from './slices/simulationSlice';
-import fluentReducer from './slices/fluentSlice';
-import solverReducer from './slices/solverSlice';
-import viewportReducer from './slices/viewportSlice';
+import applicationReducer from './slices/applicationSlice.ts';
+import streamingReducer from './slices/streamingSlice.ts';
+import uiReducer from './slices/uiSlice.ts';
+import formReducer from './slices/formSlice.ts';
+import serverReducer from './slices/serverSlice.ts';
+import simulationReducer from './slices/simulationSlice.ts';
+import fluentReducer from './slices/fluentSlice.ts';
+import solverReducer from './slices/solverSlice.ts';
+import viewportReducer from './slices/viewportSlice.ts';
 
 // Configure the store with all reducers
 export const store = configureStore({

@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -38,7 +38,7 @@ networks:
 services:
 
   fluent-v25:
-    image: ghcr.io/ansys/pyfluent:v25.2.0
+    image: fluent:v25.2.0
     command: 3d -gpu -t1 -g -sifile=/home/workdir/serverinfo.txt
     working_dir: /home/workdir
     volumes:
@@ -46,6 +46,8 @@ services:
       - ../content:/app/content
     ports:
       - ${FLUENT_PORT}:${FLUENT_PORT}
+    networks:
+      fluent-internal:
     environment:
       - ANSYSLMD_LICENSE_FILE=${ANSYSLMD_LICENSE_FILE}
       - REMOTING_PORTS=${FLUENT_PORT}/portspan=2
@@ -53,8 +55,6 @@ services:
       - FLUENT_SERVER_INFO_PERMISSION_SYSTEM=1
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility,video,graphics
-    networks:
-      fluent-internal:
     deploy:
       resources:
         reservations:
@@ -64,7 +64,7 @@ services:
               capabilities: [gpu]
 
   kit-app:
-    image: ghcr.io/ansys/bottle-filling-digital-twin/kit-app:latest
+    image: kit-app:latest
     environment:
       - TEMP=/tmp/workdir
       - FLUENT_HOST=fluent-v25
@@ -114,7 +114,7 @@ services:
         ipv4_address: ${PUBLIC_IPV4} # e.g., x.y.z.a
 
   web-app:
-    image: ghcr.io/ansys/bottle-filling-digital-twin/web-app:latest
+    image: web-app:latest
     build:
       context: ../web-app
       dockerfile: ../docker/Dockerfile.web-app

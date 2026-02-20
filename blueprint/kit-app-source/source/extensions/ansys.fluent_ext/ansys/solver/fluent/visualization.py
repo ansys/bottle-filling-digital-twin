@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -87,11 +87,13 @@ class FluentSolutionUSDVisualization:
         timeline = omni.timeline.get_timeline_interface()
         if event.type == omni.timeline.TimelineEventType.CURRENT_TIME_TICKED.value:
             if timeline.get_end_time() > 0:
+                self._dataHistogram = numpy.zeros(250)
                 idx = int(
                     (timeline.get_current_time() / timeline.get_end_time())
                     * (len(self._dataHistogram) - 1)
                 )
-                self._dataHistogram = numpy.zeros(250)
+                # Clamp index to valid array bounds
+                idx = max(0, min(idx, len(self._dataHistogram) - 1))
                 self._dataHistogram[idx] = 1
                 self.dataPlotViewport.set_data(*self._dataHistogram)
 

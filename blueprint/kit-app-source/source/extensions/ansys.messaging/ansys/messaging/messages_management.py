@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -26,6 +26,7 @@ import carb
 import carb.events
 import omni.client.utils
 import omni.kit.app
+import asyncio
 
 import omni.kit.livestream.messaging as messaging
 from .handlers import MessagesHandlerFactory
@@ -61,6 +62,55 @@ class MessagesManager:
                 )
             )
 
+        # Auto-send status messages after startup to notify frontend
+        # This is triggered periodically to ensure frontend receives status even if
+        # it connects after kit-app is already running
+        self._auto_send_task = asyncio.ensure_future(self._auto_send_status_loop())
+        carb.log_info("[MessagesManager] Initialized with auto-send status loop")
+
+    async def _auto_send_status_loop(self):
+        """Periodically send status messages to ensure frontend receives them."""
+        # Initial delay to allow WebRTC connection to establish
+        await asyncio.sleep(5)
+
+        # Send status messages periodically for the first 2 minutes
+        # This ensures frontend receives status regardless of when it connects
+        for i in range(24):  # 24 iterations * 5 seconds = 2 minutes
+            try:
+                self._send_auto_status()
+                carb.log_info(
+                    f"[MessagesManager] Auto-sent status messages (iteration {i + 1}/24)"
+                )
+            except Exception as e:
+                carb.log_warn(f"[MessagesManager] Failed to auto-send status: {e}")
+            await asyncio.sleep(5)
+
+        carb.log_info("[MessagesManager] Auto-send status loop completed")
+
+    def _send_auto_status(self):
+        """Send kitAppReady, rtxStatus, and Fluent health status messages."""
+        # Send kit-app ready status
+        self._messages_handler.send_message(
+            "kitAppReadyResponse", {"ready": True, "solver": self._solvername}
+        )
+
+        # Send RTX status
+        settings = carb.settings.get_settings()
+        rtx_payload = {
+            "rtxEnabled": settings.get("/persistent/rtx/modes/pt/enabled") or False,
+            "rt2Enabled": settings.get("/persistent/rtx/modes/rt2/enabled") or False,
+        }
+        self._messages_handler.send_message("rtxStatusResponse", rtx_payload)
+
+        # Send Fluent/solver health status (check actual connection)
+        try:
+            is_healthy = self._messages_handler._check_connection()
+            self._messages_handler.send_message(
+                "isInstanceHealthyResponse", {"isHealthy": is_healthy}
+            )
+        except Exception as e:
+            carb.log_warn(f"[MessagesManager] Failed to check solver health: {e}")
+
     def _on_change_solver(self, event: carb.events.IEvent):
         if event.type == carb.events.type_from_string("changeSolver"):
             self._solvername = event.payload["solver"]
@@ -76,5 +126,8 @@ class MessagesManager:
 
         This is called every time the extension is deactivated.
         """
+        # Cancel auto-send task
+        if hasattr(self, "_auto_send_task") and self._auto_send_task:
+            self._auto_send_task.cancel()
         # Reseting the state.
         self._subscriptions.clear()

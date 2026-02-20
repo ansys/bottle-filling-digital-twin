@@ -1,0 +1,5 @@
+{
+  "subscriptionId": "${SUBSCRIPTION_ID}",
+  "resourceGroup": "${RESOURCE_GROUP_NAME}",
+  "useWorkloadIdentityExtension": true
+}

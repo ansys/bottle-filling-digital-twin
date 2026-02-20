@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -68,7 +68,7 @@ ARG VERSION
 
 
 # CONTAINER LABELS
-LABEL org.opencontainers.image.authors="ANSYS, Inc."
+LABEL org.opencontainers.image.authors="Platform Integration and Enablement Team"
 LABEL org.opencontainers.image.vendor="ANSYS Inc."
 LABEL org.opencontainers.image.title="Bottle Filling Digital Twin"
 LABEL org.opencontainers.image.description="Bottle filling processes using Ansys Fluent and Nvidia Omniverse"

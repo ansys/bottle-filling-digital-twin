@@ -1,0 +1,184 @@
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+{{- if .Values.fluent.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "fluent-%s" (include "bottle-filling-twin.fullname" .) | trunc 63 | trimSuffix "-" }}
+  namespace: {{ include "bottle-filling-twin.namespace" . }}
+  labels:
+    app: {{ (printf "%s-fluent-%s" (include "bottle-filling-twin.name" .) (default .Release.Name .Values.streamingKit.sessionId)) | trunc 63 | trimSuffix "-" }}
+    component: fluent
+    sessionId: {{ .Values.streamingKit.sessionId }}
+    {{- include "bottle-filling-twin.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ (printf "%s-fluent-%s" (include "bottle-filling-twin.name" .) (default .Release.Name .Values.streamingKit.sessionId)) | trunc 63 | trimSuffix "-" }}
+      component: fluent
+  template:
+    metadata:
+      {{- with .Values.pod.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: {{ (printf "%s-fluent-%s" (include "bottle-filling-twin.name" .) (default .Release.Name .Values.streamingKit.sessionId)) | trunc 63 | trimSuffix "-" }}
+        component: fluent
+        sessionId: {{ .Values.streamingKit.sessionId }}
+        {{- include "bottle-filling-twin.labels" . | nindent 8 }}
+        {{- with .Values.pod.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- include "bottle-filling-twin.imagePullSecrets" . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "bottle-filling-twin.serviceAccountName" . }}
+      {{- end }}
+      containers:
+        - name: fluent
+          image: "{{ .Values.fluent.image.repository }}:{{ .Values.fluent.image.tag }}"
+          imagePullPolicy: {{ .Values.fluent.image.pullPolicy }}
+          args:
+            - "3d"
+            - "-gpu"
+            - "-t1"
+            - "-g"
+            - "-sifile={{ .Values.fluent.workdirPath }}/serverinfo.txt"
+          workingDir: {{ .Values.fluent.workdirPath }}
+          env:
+            - name: FLUENT_PORT
+              value: {{ .Values.fluent.port | quote }}
+            - name: ANSYSLMD_LICENSE_FILE
+              valueFrom:
+                secretKeyRef:
+                  name: ansys-license-secret
+                  key: ANSYSLMD_LICENSE_FILE
+            - name: REMOTING_PORTS
+              value: "{{ .Values.fluent.port }}/portspan={{ .Values.fluent.portSpan }}"
+            - name: FLUENT_ALLOW_REMOTE_GRPC_CONNECTION
+              value: "1"
+            - name: FLUENT_SERVER_INFO_PERMISSION_SYSTEM
+              value: "1"
+            {{- include "bottle-filling-twin.gpuEnv" . | nindent 12 }}
+          ports:
+            - name: fluent
+              containerPort: {{ .Values.fluent.port }}
+              protocol: TCP
+          volumeMounts:
+            {{- if .Values.storage.fluentWorkdir.enabled }}
+            - name: fluent-workdir
+              mountPath: {{ .Values.fluent.workdirPath }}
+              {{- if and .Values.storage.fluentWorkdir.useSessionSubPath .Values.streamingKit.sessionId }}
+              subPath: {{ .Values.streamingKit.sessionId }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.storage.contentData.enabled }}
+            - name: content-data
+              mountPath: {{ .Values.fluent.contentPath }}
+              readOnly: true  # Fluent only needs to read content files, not write
+            {{- end }}
+          resources:
+            {{- toYaml .Values.fluent.resources | nindent 12 }}
+
+      volumes:
+        {{- if .Values.storage.fluentWorkdir.enabled }}
+        - name: fluent-workdir
+          {{- if eq .Values.storage.fluentWorkdir.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.fluentWorkdir" . }}
+          {{- else if eq .Values.storage.fluentWorkdir.type "azureFile" }}
+          azureFile:
+            secretName: {{ .Values.storage.fluentWorkdir.azureFile.secretName }}
+            shareName: {{ .Values.storage.fluentWorkdir.azureFile.shareName }}
+            {{- if .Values.storage.fluentWorkdir.azureFile.readOnly }}
+            readOnly: {{ .Values.storage.fluentWorkdir.azureFile.readOnly }}
+            {{- else }}
+            readOnly: false
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.fluentWorkdir.sizeLimit }}
+            sizeLimit: {{ .Values.storage.fluentWorkdir.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if .Values.storage.contentData.enabled }}
+        - name: content-data
+          {{- if eq .Values.storage.contentData.type "pvc" }}
+          persistentVolumeClaim:
+            claimName: {{ include "bottle-filling-twin.pvc.contentData" . }}
+            {{- if .Values.storage.contentData.readOnly }}
+            readOnly: true
+            {{- end }}
+          {{- else if eq .Values.storage.contentData.type "azureFile" }}
+          azureFile:
+            secretName: {{ .Values.storage.contentData.azureFile.secretName }}
+            shareName: {{ .Values.storage.contentData.azureFile.shareName }}
+            {{- if .Values.storage.contentData.azureFile.readOnly }}
+            readOnly: {{ .Values.storage.contentData.azureFile.readOnly }}
+            {{- else }}
+            readOnly: false
+            {{- end }}
+          {{- else }}
+          emptyDir:
+            {{- if .Values.storage.contentData.sizeLimit }}
+            sizeLimit: {{ .Values.storage.contentData.sizeLimit }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
+      # Node pool selection for Fluent (fluentpool)
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: agentpool
+                    operator: In
+                    values:
+                      - {{ .Values.fluent.nodePool | default "fluentpool" }}
+      {{- if .Values.fluent.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.fluent.nodeSelector | nindent 8 }}
+      {{- end }}
+
+      {{- if or .Values.pod.tolerations .Values.fluent.tolerations }}
+      tolerations:
+        {{- if .Values.pod.tolerations }}
+        {{- toYaml .Values.pod.tolerations | nindent 8 }}
+        {{- end }}
+        {{- if .Values.fluent.tolerations }}
+        {{- toYaml .Values.fluent.tolerations | nindent 8 }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.pod.priorityClassName }}
+      priorityClassName: {{ .Values.pod.priorityClassName }}
+      {{- end }}
+{{- end }}
+

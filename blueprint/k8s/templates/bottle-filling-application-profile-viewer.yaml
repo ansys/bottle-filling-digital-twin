@@ -1,0 +1,190 @@
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+# SPDX-License-Identifier: MIT
+#
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+apiVersion: omniverse.nvidia.com/v1
+kind: ApplicationProfile
+metadata:
+  name: ${APPLICATION_PROFILE_VIEWER}
+  namespace: omni-streaming
+spec:
+  name: Bottle Filling Twin Viewer Default
+  description: Viewer-only configuration for bottle filling visualization with Kit-app and Envoy (no Fluent simulation engine).
+  supportedApplications:
+  - name: ${APPLICATION_ID}
+    versions:
+    - ${APPLICATION_VERSION}
+    - '*'
+  chartMappings:
+    container: kitApp.image.repository
+    container_version: kitApp.image.tag
+  chartValues:
+    envoy:
+      enabled: true
+      healthPort: 8080
+      image:
+        pullPolicy: Always
+        repository: envoyproxy/envoy
+        tag: v1.18-latest
+      livenessProbe:
+        httpGet:
+          path: /health
+          port: 8080
+        initialDelaySeconds: 5
+        periodSeconds: 5
+      proxyPort: 49200
+      readinessProbe:
+        httpGet:
+          path: /health
+          port: 8080
+        initialDelaySeconds: 5
+        periodSeconds: 5
+      resources:
+        limits:
+          cpu: 500m
+          memory: 512Mi
+        requests:
+          cpu: 250m
+          memory: 256Mi
+    fluent:
+      enabled: false
+    gpu:
+      driverCapabilities: compute,utility,video,graphics
+      visibleDevices: all
+    imagePullSecrets:
+    - name: acr-secret
+    initContainer:
+      enabled: true
+      image:
+        pullPolicy: Always
+        repository: busybox
+        tag: latest
+    kitApp:
+      enabled: true
+      contentPath: /app/content
+      env:
+        nvdaKitArgs: '${NVDA_KIT_ARGS}'
+        nvdaKitNucleus: ''
+        omKitVerbose: '1'
+      image:
+        pullPolicy: Always
+        repository: ${KIT_APP_IMAGE}
+        tag: ${KIT_APP_IMAGE_TAG}
+      ports:
+        http: 8011
+        media: 1024
+        signaling: 49100
+      resources:
+        limits:
+          cpu: '20'
+          memory: 128Gi
+        requests:
+          cpu: '16'
+          memory: 64Gi
+      securityContext:
+        privileged: true
+      shaderCache:
+        enabled: true
+      workdirPath: /tmp/workdir
+      # Node pool configuration for Kit-app (from GPU_POOL in exports.sh)
+      nodePool: ${GPU_POOL}
+      nodeSelector: {}
+      tolerations: []
+    license:
+      secretKey: ANSYSLMD_LICENSE_FILE
+      secretName: ansys-license-secret
+    pod:
+      annotations: {}
+      labels: {}
+      nodeSelector:
+        nvidia.com/gpu.present: 'true'
+      priorityClassName: ''
+      tolerations: []
+    podAntiAffinity:
+      enabled: true
+    service:
+      annotations:
+        external-dns.alpha.kubernetes.io/ttl: '5'
+        service.beta.kubernetes.io/azure-load-balancer-internal: 'false'
+        service.beta.kubernetes.io/port_8080_health-probe_port: '8080'
+        service.beta.kubernetes.io/port_8080_health-probe_protocol: HTTP
+        service.beta.kubernetes.io/port_8080_health-probe_request-path: /health
+      ports:
+        health:
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+        media:
+          port: 1024
+          protocol: UDP
+          targetPort: 1024
+        signaling:
+          port: 49100
+          protocol: TCP
+          targetPort: 49200
+      sessionAffinity: ClientIP
+      type: LoadBalancer
+    serviceAccount:
+      annotations: {}
+      automount: true
+      create: true
+      name: ''
+    session:
+      name: bottle-filling-twin
+    storage:
+      contentData:
+        accessMode: ReadWriteOnce
+        azureFile:
+          readOnly: true  # Viewer only needs read access to view solved cases
+          secretName: azure-storage-secret
+          shareName: ${FILE_SHARE_NAME}  # Shared across all sessions
+        enabled: true
+        existingClaim: ''
+        readOnly: true  # Viewer profile: read-only access to content
+        size: 100Gi
+        sizeLimit: 2Gi
+        type: azureFile
+      extensionCache:
+        enabled: true
+        size: 2Gi
+        sizeLimit: 2Gi
+        type: emptyDir
+      shaderCache:
+        enabled: true
+        size: 2Gi
+        sizeLimit: 2Gi
+        type: emptyDir
+      omniverseCache:
+        accessMode: ReadWriteMany
+        enabled: true
+        existingClaim: ''
+        size: 50Gi
+        type: azureFile
+        azureFile:
+          readOnly: false
+          secretName: azure-storage-secret
+          shareName: ${FILE_SHARE_NAME}-omniverse-cache  # Shared cache across all sessions
+      storageClass: ''
+    streamingKit:
+      name: bottle-filling-twin
+      sessionId: ''
+      userId: ''
+

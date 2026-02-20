@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -177,6 +177,10 @@ class FluentMessagesHandler(IMessagesHandler):
             "currentStateResponse",
             "colorPalettesResponse",
             "storedResultsResponse",
+            # Kit-app status tracking (for e2e tests)
+            "kitAppReadyResponse",
+            "rtxStatusResponse",
+            "modelLoadProgressResponse",
         ]
 
     def _on_get_stored_results(self, event: carb.events.IEvent):
@@ -290,31 +294,79 @@ class FluentMessagesHandler(IMessagesHandler):
             payload = {"isHealthy": connection.success}
             self.send_message("isInstanceHealthyResponse", payload)
 
+            # Send kit-app ready status after health check (for e2e tests)
+            # This ensures the message is sent after WebRTC connection is established
+            self.send_message(
+                "kitAppReadyResponse", {"ready": True, "solver": "fluent"}
+            )
+
+            # Send RTX status (for e2e tests)
+            settings = carb.settings.get_settings()
+            rtx_payload = {
+                "rtxEnabled": settings.get("/persistent/rtx/modes/pt/enabled") or False,
+                "rt2Enabled": settings.get("/persistent/rtx/modes/rt2/enabled")
+                or False,
+            }
+            self.send_message("rtxStatusResponse", rtx_payload)
+
     def _on_design_file_changed(self, event: carb.events.IEvent):
         if event.type == carb.events.type_from_string("loadDesignFile"):
             payload = {"result": "success", "error": ""}
             design_file = self._content_path + event.payload["url"] + ".cas.h5"
             self._lastOpendedDesign = event.payload["url"]
             print("Design file load message received: ", design_file)
+
+            # Send model load progress: started
+            self.send_message(
+                "modelLoadProgressResponse", {"stage": "started", "progress": 0}
+            )
+
             if os.path.exists(design_file) and self._check_connection():
                 omni.usd.get_context().new_stage()
+
+                # Send model load progress: loading_case
+                self.send_message(
+                    "modelLoadProgressResponse",
+                    {"stage": "loading_case", "progress": 20},
+                )
                 self.send_update_message("Loading Design File")
                 self._session.load_case_file(design_file)
+
+                # Send model load progress: generating_surfaces
+                self.send_message(
+                    "modelLoadProgressResponse",
+                    {"stage": "generating_surfaces", "progress": 50},
+                )
                 self.send_update_message("Generating USD Surfaces")
                 self._session.get_visualization().create_hierarchy_and_surfaces(
                     self._content_path + "materials/Tinted_Glass_R85.mdl",
                     "Tinted_Glass_R85",
+                )
+
+                # Send model load progress: applying_template
+                self.send_message(
+                    "modelLoadProgressResponse",
+                    {"stage": "applying_template", "progress": 80},
                 )
                 self.send_update_message("Adding default template")
                 self._session.get_visualization().execute_template_script(
                     self._content_path + "templates/studio.py"
                 )
                 self._canInitialize = True
+
+                # Send model load progress: completed
+                self.send_message(
+                    "modelLoadProgressResponse", {"stage": "completed", "progress": 100}
+                )
             else:
                 payload = {
                     "result": "error",
                     "error": "Can't connect to the Fluent session",
                 }
+                # Send model load progress: error
+                self.send_message(
+                    "modelLoadProgressResponse", {"stage": "error", "progress": 0}
+                )
 
             self.send_message("loadDesignFileResponse", payload)
 
@@ -527,10 +579,15 @@ class FluentMessagesHandler(IMessagesHandler):
         self.send_message("updateStatusText", {"text": message})
 
     def send_message(self, typeName, payload):
+        carb.log_info(
+            f"[MessagesHandler] Sending message: {typeName} with payload: {payload}"
+        )
+        print(f"[MessagesHandler] Sending message: {typeName} with payload: {payload}")
         message_bus = omni.kit.app.get_app().get_message_bus_event_stream()
         event_type = carb.events.type_from_string(typeName)
         message_bus.dispatch(event_type, payload=payload)
         message_bus.pump()
+        carb.log_info(f"[MessagesHandler] Message dispatched: {typeName}")
 
     def _on_timestep_changed(self, event: carb.events.IEvent):
         TIMECODE_MULTIPLIER = 1 / 60.0

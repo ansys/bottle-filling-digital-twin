@@ -1,4 +1,4 @@
-# Copyright (C) 2025 ANSYS, Inc. and/or its affiliates.
+# Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
 # SPDX-License-Identifier: MIT
 #
 #
@@ -93,7 +93,15 @@ def pytest_sessionstart(session):
             {"get_context": get_context},
         ),
         ("omni.timeline", None, {"get_timeline_interface": get_timeline_interface}),
-        ("carb", None, {"log_error": lambda msg: print(f"Error: {msg}")}),
+        (
+            "carb",
+            None,
+            {
+                "log_error": lambda msg: print(f"Error: {msg}"),
+                "log_info": lambda msg: print(str(msg)),
+                "log_warn": lambda msg: print(str(msg)),
+            },
+        ),
         (
             "carb.tokens",
             None,
@@ -104,6 +112,15 @@ def pytest_sessionstart(session):
             },
         ),
         ("carb.events", {"IEvent": IEvent}, {"type_from_string": lambda x: x}),
+        (
+            "carb.settings",
+            None,
+            {
+                "get_settings": lambda: types.SimpleNamespace(
+                    get=lambda key, default=None: None
+                )
+            },
+        ),
         (
             "omni.kit.notification_manager",
             {"NotificationStatus": NotificationStatus},

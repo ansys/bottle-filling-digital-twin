@@ -33,8 +33,8 @@ repos:
     rev: v0.5.2
     hooks:
       - id: add-license-headers
-        # ONLY on blueprint\kit-app-source\source\extensions folder and Python files
-        files: blueprint/kit-app-source/source/extensions/.*\.py
+        # ONLY on blueprint\kit-app-source folder and Python files
+        files: blueprint/kit-app-source/.*\.py
         args:
           - --start_year=2025
 

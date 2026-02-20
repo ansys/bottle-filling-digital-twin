@@ -1,3 +1,25 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import { render, act } from '@testing-library/react';
 // We'll require LocalStream after we configure the AppStreamer mock inside each test
 // note: we require the nvidia mock inside tests when needed
@@ -26,7 +48,7 @@ describe('LocalStream', () => {
 
     // Import the component and render it — main goal is to exercise mount logic
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const LocalStreamReq = require('../../../src/components/streaming/LocalStream/LocalStream').default;
+    const LocalStreamReq = require('@/components/streaming/LocalStream/LocalStream.tsx').default;
 
     await act(async () => {
       const { container } = render(
@@ -56,7 +78,7 @@ describe('LocalStream', () => {
   // Import class and call static method
   // require the class and call static method
   // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const LocalStreamClass = require('../../../src/components/streaming/LocalStream/LocalStream').default;
+  const LocalStreamClass = require('@/components/streaming/LocalStream/LocalStream.tsx').default;
   LocalStreamClass.sendMessage('{"hello":"world"}');
 
     expect(warnSpy).toHaveBeenCalledWith(

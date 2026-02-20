@@ -16,4 +16,6 @@ project_ext (ext)
 repo_build.prebuild_link {
     { "config", ext.target_dir.."/config" },
     { "ansys", ext.target_dir.."/ansys" },
+    { "layouts", ext.target_dir.."/layouts" },
+    { "%{root}/_build/target-deps/pip_prebundle", ext.target_dir.."/pip_prebundle" },
 }

@@ -1,17 +1,39 @@
+// Copyright (C) 2025 - 2026 ANSYS, Inc. and/or its affiliates.
+// SPDX-License-Identifier: MIT
+//
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { configureStore } from '@reduxjs/toolkit';
-import { render } from '../utils/test-utils';
-import { AppOnlyForm } from '../../src/components/AppOnlyForm/AppOnlyForm';
+import { render } from '../utils/test-utils.tsx';
+import { AppOnlyForm } from '@/components/AppOnlyForm/AppOnlyForm.tsx';
 import {
   Forms,
   StreamStatus,
   ApplicationState,
-} from '../../src/store/slices/applicationSlice';
-import applicationReducer from '../../src/store/slices/applicationSlice';
-import { ROUTES } from '../../src/constants/routes';
+} from '@/store/slices/applicationSlice.ts';
+import applicationReducer from '@/store/slices/applicationSlice.ts';
+import { ROUTES } from '@/constants/routes.ts';
 
 // Mock the navigation hook
 const mockNavigate = jest.fn();
@@ -21,7 +43,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 // Mock the constants to avoid import.meta.env issues
-jest.mock('../../src/constants', () => ({
+jest.mock('@/constants', () => ({
   ROUTES: {
     WORKFLOW: '/workflow',
     SIMULATION: '/simulation',

@@ -50,3 +50,5 @@ deps/**/user.toml
 
 
 /scripts/swa-cli.config.json
+
+docker/fluent-workdir/
