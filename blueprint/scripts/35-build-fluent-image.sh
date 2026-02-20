@@ -75,6 +75,11 @@ if [ ! -d "$FLUENT_DIR" ]; then
   exit 4
 fi
 
+echo "Switching to docs/update_gpu_folder branch"
+cd "$PYFLUENT_DIR"
+git checkout docs/update_gpu_folder
+cd -
+
 COPY_SCRIPT="$PYFLUENT_DIR/docker/copy_ansys_files.py"
 if [ ! -f "$COPY_SCRIPT" ]; then
   echo "Error: copy_ansys_files.py not found in $PYFLUENT_DIR/docker" >&2
@@ -86,6 +91,60 @@ python3 "$COPY_SCRIPT" "$ANSYS_INC" "$FLUENT_DIR"
 
 # Ensure copied files have write permissions for cleanup
 chmod -R u+w "$FLUENT_DIR" 2>/dev/null || true
+
+# If Dockerfile exists, insert libtirpc3 into the apt-get install list
+# (insert before the line containing the final package, e.g. libglvnd-dev)
+DOCKERFILE="$FLUENT_DIR/Dockerfile"
+if [ -f "$DOCKERFILE" ]; then
+  if ! grep -q 'libtirpc3' "$DOCKERFILE"; then
+    echo "Adding required packages to apt-get install list in Dockerfile: $DOCKERFILE"
+    # Find the line containing the final apt-get clean and insert package lines before it.
+    LINE_NUM=$(grep -n "libglvnd-dev  && apt-get clean all" "$DOCKERFILE" | cut -d: -f1 || true)
+    if [ -n "$LINE_NUM" ]; then
+      TMP_DOCKERFILE="$DOCKERFILE".tmp
+      head -n $((LINE_NUM-1)) "$DOCKERFILE" > "$TMP_DOCKERFILE"
+        cat >> "$TMP_DOCKERFILE" <<'PKGLIST'
+      libnspr4 \
+      libnss3-tools \
+      libnss3 \
+      libtirpc3 \
+      libxcomposite1 \
+      libxdamage1 \
+      libxfixes3 \
+      libxrender1 \
+      libx11-6 \
+      libxext6 \
+      libxtst6 \
+      libdbus-1-3 \
+PKGLIST
+      tail -n +${LINE_NUM} "$DOCKERFILE" >> "$TMP_DOCKERFILE"
+      mv "$TMP_DOCKERFILE" "$DOCKERFILE"
+    else
+      echo "Warning: target line not found in $DOCKERFILE; no changes made." >&2
+    fi
+  fi
+fi
+
+if [ -f "$DOCKERFILE" ]; then
+  if ! grep -q 'ldconfig' "$DOCKERFILE"; then
+    echo "Adding ldconfig step to Dockerfile: $DOCKERFILE"
+    # Insert the RUN command after the apt-get install line
+    LINE_NUM=$(grep -n "libglvnd-dev  && apt-get clean all" "$DOCKERFILE" | tail -n 1 | cut -d: -f1 || true)
+    if [ -n "$LINE_NUM" ]; then
+      TMP_DOCKERFILE="$DOCKERFILE".tmp
+      head -n $((LINE_NUM)) "$DOCKERFILE" > "$TMP_DOCKERFILE"
+        cat >> "$TMP_DOCKERFILE" <<'RUNCMD'
+RUN printf '/usr/lib/x86_64-linux-gnu/nss\n' > /etc/ld.so.conf.d/nss.conf && ldconfig
+ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu/nss:${LD_LIBRARY_PATH}"
+RUNCMD
+      tail -n +$((LINE_NUM+1)) "$DOCKERFILE" >> "$TMP_DOCKERFILE"
+      mv "$TMP_DOCKERFILE" "$DOCKERFILE"
+    else
+      echo "Warning: apt-get install line not found in $DOCKERFILE; ldconfig step not added." >&2
+    fi
+  fi
+fi
+
 
 echo "Building Docker image: $IMAGE_TAG"
 (cd "$FLUENT_DIR" && docker build -t "$IMAGE_TAG" .)
