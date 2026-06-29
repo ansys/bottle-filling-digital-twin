@@ -45,7 +45,7 @@ if ($ScriptDir -like "*blueprint\scripts") {
 }
 
 # Define paths
-$FluentExe = "${env:AWP_ROOT252}\fluent\ntbin\win64\fluent.exe"
+$FluentExe = "${env:AWP_ROOT261}\fluent\ntbin\win64\fluent.exe"
 $ServerInfoFile = "$env:TEMP\serverinfo.txt"
 $KitBuildDir = "$ProjectRoot\_temp-build\kit-cae\_build\windows-x86_64\release"
 $KitScript = "$KitBuildDir\fluent.cae_streaming.kit.bat"
@@ -74,8 +74,8 @@ Log-Info "=============================================="
 # Check prerequisites
 Log-Step "Checking prerequisites..."
 
-if (-not $env:AWP_ROOT252) {
-    Log-Error "AWP_ROOT252 environment variable not set. Please install Ansys Fluent 2025 R2."
+if (-not $env:AWP_ROOT261) {
+    Log-Error "AWP_ROOT261 environment variable not set. Please install Ansys Fluent 2025 R2."
     exit 1
 }
 
@@ -160,7 +160,7 @@ if (Test-Path $ServerInfoFile) {
     }
 }
 
-$FluentProcess = Start-Process -FilePath $FluentExe -ArgumentList $FluentArgs -PassThru -WindowStyle Normal -Env $FluentEnvVars
+$FluentProcess = Start-Process -FilePath $FluentExe -ArgumentList $FluentArgs -PassThru -WindowStyle Normal
 
 if (-not $FluentProcess) {
     Log-Error "Failed to start Fluent process"

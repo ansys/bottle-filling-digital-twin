@@ -17,7 +17,7 @@
   },
   "local": {
     "$comment": "Required props if source is set to 'local'.",
-    "server": "<YOUR_LOCAL_SERVER>",
+    "server": "192.168.1.24",
     "signalingPort": 49100,
     "mediaPort": 1024
   }

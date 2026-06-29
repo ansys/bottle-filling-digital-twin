@@ -1,0 +1,75 @@
+Auto-Transcript Start Time:  13:47:06, 26 May 2026 Romance Daylight Time 
+Current Directory: "C:\AnsysDev\omniverse-sandbox\bottle-filling-digital-twin\blueprint\scripts"
+Information: The server has started and is running.
+
+              Welcome to ANSYS Fluent 2026 R1.01
+
+              Copyright 2026 Synopsys, Inc. and ANSYS, Inc. All rights reserved.
+              Unauthorized use, distribution or duplication is prohibited.
+              This product is subject to U.S. laws governing export and re-export.
+              For full Legal Notice, see documentation.
+
+Build Time: Feb  2 2026 16:22:05 EST  Build Id: 10262  
+ 
+Connected License Server List:	1055@AAP08T41J4ainFW
+Host spawning Node 0 on machine "AAP08T41J4ainFW" (win64).
+Host waiting for connection from Node 0 at 127.0.0.1:61610 
+
+Node 0 connecting to the Host ... connection established.
+
+------------------------------------------------------------------------------------------
+ID    Hostname         Core  O.S.         PID    CPU Model Name                          
+------------------------------------------------------------------------------------------
+n0    AAP08T41J4ainFW  1/20  Windows-x64  66732  13th Gen Intel(R) Core(TM) i7-13800H    
+host  AAP08T41J4ainFW        Windows-x64  58700  13th Gen Intel(R) Core(TM) i7-13800H    
+
+MPI Option Selected: intel
+------------------------------------------------------------------------------------------
+
+GPU Solver enabled
+Cleanup script file is C:\\AnsysDev\\omniverse-sandbox\\bottle-filling-digital-twin\\blueprint\\scripts\\cleanup-fluent-AAP08T41J4ainFW-58700.bat
+
+Graphics driver currently in use: dx11
+
+
+Loading "C:\Users\bfall/.fluent"
+Fast-loading "C:/PROGRA~1/ANSYSI~1/v261/fluent/FLUENT~1.0/addons/rbfmorph/radial_basis.bin"
+Done.
+Done.
+
+ +------------------------------------------------------------------+
+ |                    ANSYS Product Improvement                     |
+ |                                                                  |
+ |   ANSYS Product Improvement Program helps improve ANSYS          |
+ |   products. Participating in this program is like filling out a  |
+ |   survey. Without interrupting your work, the software reports   |
+ |   anonymous usage information such as errors, machine and        |
+ |   solver statistics, features used, etc. to ANSYS. We never      |
+ |   use the data to identify or contact you.                       |
+ |   The data does NOT contain:                                     |
+ |   - Any personally identifiable information including names,     |
+ |     IP addresses, file names, part names, etc.                   |
+ |   - Any information about your geometry or design specific       |
+ |     inputs.                                                      |
+ |   You can stop participation at any time. To change your         |
+ |   selection go to Help >> ANSYS Product Improvement Program      |
+ |   in the GUI.                                                    |
+ |   For more information about the ANSYS Privacy Policy, please    |
+ |   check: http://www.ansys.com/privacy                            |
+ |                                                                  |
+ +------------------------------------------------------------------+
+
+Posting ANSYS Product Improvement Program startup data
+Done.
+
+> /exit y
+
+Posting ANSYS Product Improvement Program performance data 
+Done.
+Shutting down Server...
+Services Shutdown...Done.
+Server Shutdown...Done.
+Queue Cleared...Done.
+Shutdown Complete.
+Auto-Transcript Stop Time:  14:14:58, 26 May 2026 Romance Daylight Time 
+Total Transcript Time: 27 Minute 51 Second.
